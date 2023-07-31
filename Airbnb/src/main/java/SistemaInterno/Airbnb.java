@@ -30,7 +30,7 @@ public class Airbnb {
                 //ingresar metodos en cada caso
                 switch(opcion){
                     case 1:
-                        System.out.println("opcion1");
+                        ConexionDB.mostrarAlojamientoInfo(c);
                         break;
                     case 2:
                         System.out.println("opcion2");
