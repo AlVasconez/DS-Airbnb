@@ -39,7 +39,6 @@ public class ConexionDB {
         if (instance==null) {
             instance = new ConexionDB();
         }
-        
         return instance.conn;
     }
 }
