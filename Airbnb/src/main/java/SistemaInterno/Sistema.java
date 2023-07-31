@@ -21,13 +21,8 @@ public class Sistema {
     private static boolean verificacion(String usuario, String contrasenha){
         Usuario u1 = new Cliente("12","12","12","12","12",12,false);
         usuarios.add(u1);
-        boolean validacion = false;
-        for(Usuario u:usuarios){
-            if(u.verificarInicioSesion(usuario, contrasenha)){
-                validacion = true;
-            }
-        }
-        return validacion;
+
+        return usuarios.contains(new Cliente(usuario,contrasenha));
     }
        
     private static boolean inicioSesion(){
@@ -44,14 +39,13 @@ public class Sistema {
     }
     
     public static void menuInicio(){
-        boolean verificacion=false;
+        boolean verificacion;
         do{
             verificacion = inicioSesion();
-            if(verificacion==false){
+            if(!verificacion){
                 System.out.println("Usuario o contraseña erroneos.");
             }
-        }
-        while(verificacion==false);
+        }while(!verificacion);
     }
     
     public static int menuPrincipal(){
@@ -64,20 +58,22 @@ public class Sistema {
                 """);
         
         Scanner sc = new Scanner(System.in);
-        int opcion=0;
+        int opcion=7;
         do{
             try{
                 System.out.print("Escoja una opcion: ");
                 opcion = sc.nextInt();
             }
             catch(Exception e){
-            System.out.println("****ESCOJA UNA DE LAS OPCIONES MOSTRADAS*****\n");
+                System.out.println("****ESO NO ES UN NÚMERO*****");
+            }
+            finally{
+                sc.nextLine();
             }
             if(opcion>3){
                 System.out.println("****ESCOJA UNA DE LAS OPCIONES MOSTRADAS*****\n");
             }
-        }
-        while(opcion>3 );
+        }while(opcion<1 || opcion>3);
 
         return opcion;
     }

@@ -19,7 +19,9 @@ public class Cliente extends Usuario{
         super(usuarioID, contrasenha, nombre, apellido, correo, telefono, verificacion);
     }
 
-    
+    public Cliente(String usuarioID, String contrasenha){
+        super(usuarioID, contrasenha);
+    }
     public void crearReseña(Alojamiento alojamiento){
         //Asignando calificaion a alojamiento
         Scanner sc = new Scanner(System.in);

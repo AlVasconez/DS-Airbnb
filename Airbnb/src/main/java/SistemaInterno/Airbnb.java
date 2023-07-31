@@ -19,7 +19,7 @@ public class Airbnb {
         //El programa no se detiene a menos que se pare de ejecutar.
         //Permite cambiar de cuentas dentro del mismo proceso.
         boolean inicio = true;
-        while(inicio = true){
+        while(inicio){
             Sistema.menuInicio();
             int opcion=0;
             do{
@@ -36,7 +36,8 @@ public class Airbnb {
                     case 3:
                         System.out.println("opcion3");
                         break;
-
+                    default:
+                        System.out.println("Ingrese una opción correcta.");
                 }
             }
             while(opcion!=3);
