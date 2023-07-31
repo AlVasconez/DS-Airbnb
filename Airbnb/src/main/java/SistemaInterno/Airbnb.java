@@ -5,6 +5,9 @@
 
 package SistemaInterno;
 
+import Util.ConexionDB;
+import java.sql.Connection;
+
 
 
 /**
@@ -15,11 +18,10 @@ public class Airbnb {
     
 
     public static void main(String[] args) {
-        
+        Connection c = ConexionDB.getConection();
         //El programa no se detiene a menos que se pare de ejecutar.
         //Permite cambiar de cuentas dentro del mismo proceso.
-        boolean inicio = true;
-        while(inicio){
+        while(true){
             Sistema.menuInicio();
             int opcion=0;
             do{
