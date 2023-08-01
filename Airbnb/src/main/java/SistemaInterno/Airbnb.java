@@ -48,7 +48,7 @@ public class Airbnb {
                     //ingresar metodos en cada caso
                 switch(opcion){
                     case 1:
-                        ConexionDB.mostrarAlojamientoInfo(c);
+                        // ConexionDB.mostrarAlojamientoInfo(c);
                         Sistema.verAlojamientos();
                         break;
                     case 2:

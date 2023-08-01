@@ -21,8 +21,8 @@ public class ConexionDB {
     private static ConexionDB instance;
     private Connection conn = null;
     private String db = "airbnb";
-    private String user = "Airbnb";
-    private String password = "Proyecto-Airbnb";
+    private String user = "root";
+    private String password = "root";
     private String ip = "localhost";
     private String puerto = "3306";
     private String cadenaCon = String.format("jdbc:mysql://%s/%s",ip,db);
