@@ -17,19 +17,19 @@ public abstract class Usuario {
     protected String usuarioID;
     protected String contrasenha;
     protected String nombre;
-    protected String apellido;
     protected String correo;
-    protected int telefono;
+    protected String telefono;
+    protected String direccionFisica;
     protected boolean verificacion;
 
     
-    public Usuario(String usuarioID, String contrasenha, String nombre, String apellido, String correo, int telefono, boolean verificacion) {
-        this.usuarioID = usuarioID;
+    public Usuario(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
+        this.usuarioID =usuarioID.toString();
         this.contrasenha = contrasenha;
         this.nombre = nombre;
-        this.apellido = apellido;
         this.correo = correo;
         this.telefono = telefono;
+        this.direccionFisica= direccionFisica;
         this.verificacion = verificacion;
     }
 
@@ -57,6 +57,14 @@ public abstract class Usuario {
         final Usuario other = (Usuario) obj;
         
         return other.usuarioID.equals(this.usuarioID) && other.contrasenha.equals(this.contrasenha);
+    }
+
+    public String getUsuarioID() {
+        return usuarioID;
+    }
+
+    public String getContrasenha() {
+        return contrasenha;
     }
     
     

@@ -15,8 +15,8 @@ import java.util.Scanner;
  */
 public class Cliente extends Usuario{
 
-    public Cliente(String usuarioID, String contrasenha, String nombre, String apellido, String correo, int telefono, boolean verificacion) {
-        super(usuarioID, contrasenha, nombre, apellido, correo, telefono, verificacion);
+    public Cliente(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
+        super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
     }
 
     public Cliente(String usuarioID, String contrasenha){

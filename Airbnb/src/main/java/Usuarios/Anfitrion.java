@@ -13,8 +13,8 @@ import java.util.ArrayList;
  */
 public class Anfitrion extends Usuario {
 
-    public Anfitrion(String usuarioID, String contrasenha, String nombre, String apellido, String correo, int telefono, boolean verificacion) {
-        super(usuarioID, contrasenha, nombre, apellido, correo, telefono, verificacion);
+    public Anfitrion(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono, String direccionFisica, boolean verificacion) {
+        super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
     }
     
     
