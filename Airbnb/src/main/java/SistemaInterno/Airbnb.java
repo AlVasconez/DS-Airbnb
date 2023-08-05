@@ -5,7 +5,7 @@
 
 package SistemaInterno;
 
-import Usuarios.Usuario;
+import Usuarios.*;
 import Util.ConexionDB;
 import java.sql.Connection;
 import java.util.Scanner;
@@ -21,38 +21,22 @@ public class Airbnb {
 
     public static void main(String[] args) {
         Connection c = ConexionDB.getConection();
-        //El programa no se detiene a menos que se pare de ejecutar.
-        //Permite cambiar de cuentas dentro del mismo proceso.
+        Scanner sc = new Scanner(System.in);
+
         while(true){
-            int opcion=0;
-            boolean ingreso=false;
-            Usuario user = null;
-            
-            do{
-                Scanner sc = new Scanner(System.in);
-                System.out.print( """
-                                   AIRBNB
-                            Menu de inicio de sesion
-                        """);
-                System.out.print("Usuario: ");
-                String usuario = sc.nextLine();
-                System.out.print("Contraseña: ");
-                String contrasenha = sc.nextLine();
-                
-                ingreso= Sistema.verificacion(usuario, contrasenha);
-                user = Sistema.getUsuario(usuario, contrasenha);
-                
-            }while(ingreso==false);
-            do{
-            opcion =Sistema.menuPrincipal();
-                    //ingresar metodos en cada caso
+            int opcion;
+            Usuario usuario;
+                         
+            usuario = Sistema.menuIngreso();
+            do{            
+            opcion =usuario.menuUsuario();
+                    
                 switch(opcion){
                     case 1:
-                        // ConexionDB.mostrarAlojamientoInfo(c);
-                        Sistema.verAlojamientos();
+
                         break;
                     case 2:
-                        ConexionDB.crearListaUsuario();
+                        Sistema.verAlojamientos();
                         break;
                     case 3:
                         System.out.println("opcion3");

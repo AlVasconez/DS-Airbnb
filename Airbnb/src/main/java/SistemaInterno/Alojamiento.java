@@ -23,8 +23,8 @@ public class Alojamiento {
     protected double calificacion;
  
     private ArrayList<Double> calificaciones= new ArrayList<>();
-    protected ArrayList<String> servicios = new ArrayList<>();
-    protected ArrayList<String> reglamento = new ArrayList<>();
+    private ArrayList<String> servicios = new ArrayList<>();
+    private ArrayList<String> reglamento = new ArrayList<>();
 
     
     public Alojamiento(Anfitrion anfitrion, double precio, int habitaciones, String ubicacion) {
@@ -46,9 +46,37 @@ public class Alojamiento {
         this.calificacion = 0;
         numAlojamiento++;
     }
+
+    public int getAlojaminetoID() {
+        return alojaminetoID;
+    }
+
+    public void setServicios(String servicio) {
+        this.servicios.add(servicio);
+    }
+
+    public void setReglamento(String regla) {
+        this.reglamento.add(regla);
+    }
+
+    @Override
+    public String toString() {
+        return "Alojamiento{" + "alojaminetoID=" + alojaminetoID + ", anfitrion=" + anfitrion.getAnfitrion() + ", precio=" + precio + ", habitaciones=" + habitaciones + ", ubicacion=" + ubicacion + ", calificacion=" + calificacion + ", calificaciones=" + calificaciones + ", servicios=" + servicios + ", reglamento=" + reglamento + '}';
+    }
+    
+ 
+    public void enlistarAlojamiento(){
+        System.out.printf("Lugar en: %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n",this.ubicacion,this.precio,this.calificacion);
+    }
     
     
+    public void detallarAlojamiento(){
+        System.out.printf("\n %s\n-Costo: %s x noche\n-Habitaciones: %d\n-Calificacion: %s estrellas",this.ubicacion.toUpperCase(),this.precio,this.habitaciones,this.calificacion);
+    }
     
+    
+//---------------------------------------------------------------------------------------------------
+    //Metodo que cambia la calificacion del alojamineto
     public void cambiarCalificaion(double nuevaCalificacion){  
         this.calificaciones.add(nuevaCalificacion);
         double calificacion=0;
@@ -63,64 +91,53 @@ public class Alojamiento {
         this.calificacion=calificaionFinal;
     }
     
-    public void enlistarAlojamiento(){
-        System.out.printf("Lugar en: %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n",this.ubicacion,this.precio,this.calificacion);
-    }
+
     
     
-    public void detallarAlojamiento(){
-        System.out.printf("\n %s\n-Costo: %s x noche\n-Habitaciones: %d\n-Calificacion: %s estrellas",this.ubicacion.toUpperCase(),this.precio,this.habitaciones,this.calificacion);
-    }
-    
-    
-    public void addServicios(){
+//-------------------------------------------------------------------------------------------
+    //Metodos de la opcion publicar alojamientos (ANFITRION)
+    public void addServicio(){
         Scanner sc = new Scanner(System.in);
-        boolean continuar=true;
-        
-        do{
-            System.out.println("Servicio que posee su alojamiento:");
+        int opcion=0;
+        try{
+            System.out.println("Servicio que posee su alojamiento: ");
             String servicio = sc.nextLine();
             this.servicios.add(servicio);
-            String continuarCliente= "s";
-            do{
-                System.out.println("Desea agregar otro servicio? (s/n)");
-                 continuarCliente = sc.nextLine().toUpperCase();
-                 if(!"S".equals(continuarCliente) || !"N".equals(continuarCliente)){
-                     System.out.print(("***Responda con s o n***"));
-                 }
-            }
-            while(!"S".equals(continuarCliente) || !"N".equals(continuarCliente) );
-            
-            if (continuarCliente=="N"){
-                continuar=false;
+
+            System.out.println("Desea agregar otro servicio?\n1.si\n2.no");
+            opcion =Sistema.getOpcion(2);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        finally{
+            if(opcion==1){
+                this.addServicio();
             }
         }
-        while(continuar==true);
     }
-    
     
     public void addReglamento(){
         Scanner sc = new Scanner(System.in);
-        boolean continuar=true;
-        
-        do{
-            System.out.println("Escriba la regla a agregar: ");
+        int opcion=0;
+
+        try{
+            System.out.println("Regla a agregar: ");
             String regla = sc.nextLine();
             this.reglamento.add(regla);
-            String continuarCliente= "s";
-            do{
-                System.out.println("Desea agregar otra regla? (s/n)");
-                 continuarCliente = sc.nextLine().toUpperCase();
-                 if(!"S".equals(continuarCliente) || !"N".equals(continuarCliente)){
-                     System.out.print(("***Responda con s o n***"));
-                 }
-            }
-            while(!"S".equals(continuarCliente) || !"N".equals(continuarCliente) );
-            
-            if (continuarCliente=="N"){
-                continuar=false;
+
+            System.out.println("Desea agregar otra regla?\n1.si\n2.no");
+            opcion =Sistema.getOpcion(2);
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+        }
+        finally{
+            if(opcion==1){
+                this.addReglamento();
             }
         }
-        while(continuar==true);
     }
+
+    
 }

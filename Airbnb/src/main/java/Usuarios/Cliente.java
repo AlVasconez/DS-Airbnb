@@ -6,6 +6,9 @@ package Usuarios;
 
 import SistemaInterno.Resenha;
 import SistemaInterno.Alojamiento;
+import SistemaInterno.Sistema;
+import Util.ConexionDB;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -15,11 +18,11 @@ import java.util.Scanner;
  */
 public class Cliente extends Usuario{
 
-    public Cliente(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
+    public Cliente(int usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
         super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
     }
 
-    public Cliente(String usuarioID, String contrasenha){
+    public Cliente(int usuarioID, String contrasenha){
         super(usuarioID, contrasenha);
     }
     public void crearReseña(Alojamiento alojamiento){
@@ -37,8 +40,50 @@ public class Cliente extends Usuario{
         
         System.out.println("Se ha actualizado la calificacion de este alojamiento.");
     }
+
     
+
+
+    @Override
+    public String toString() {
+        return "Cliente {" +super.toString() + '}';
+    }
+    
+    
+    
+    @Override
+    public int menuUsuario() {
+        Connection c = ConexionDB.getConection();
+        Scanner sc = new Scanner(System.in);
         
+        System.out.print( """
+
+                  MENU PRINCIPAL
+            1. Ver alojaminetos
+            2. Mis reservas
+            3. Cerrar Sesion
+                """);
+         
+        int opcion = Sistema.getOpcion(3);
+
+        if (opcion==2){
+            System.out.print( """
+               1. Fechas realizadas
+               2. Fechas por reservar
+            """);
+
+            System.out.println("Escoja una opcion: ");
+            int opcion2 = sc.nextInt();
+
+            if(opcion2==1){
+                ConexionDB.mostrarReservasInfo(c, this.getUsuarioID());
+            }
+        }
+
+
+        return opcion;
         
+    }
+    
     
 }

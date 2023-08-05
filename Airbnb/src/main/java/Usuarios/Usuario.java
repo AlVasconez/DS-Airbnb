@@ -14,8 +14,8 @@ import java.util.Scanner;
  */
 public abstract class Usuario {
     
-    protected String usuarioID;
-    protected String contrasenha;
+    protected int usuarioID;
+    protected String contrasenia;
     protected String nombre;
     protected String correo;
     protected String telefono;
@@ -23,9 +23,9 @@ public abstract class Usuario {
     protected boolean verificacion;
 
     
-    public Usuario(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
-        this.usuarioID =usuarioID.toString();
-        this.contrasenha = contrasenha;
+    public Usuario(int usuarioID, String contrasenia, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
+        this.usuarioID =usuarioID;
+        this.contrasenia = contrasenia;
         this.nombre = nombre;
         this.correo = correo;
         this.telefono = telefono;
@@ -33,9 +33,9 @@ public abstract class Usuario {
         this.verificacion = verificacion;
     }
 
-    public Usuario(String usuarioID, String contrasenha) {
+    public Usuario(int usuarioID, String contrasenia) {
         this.usuarioID = usuarioID;
-        this.contrasenha = contrasenha;
+        this.contrasenia = contrasenia;
     }
     
     public void enviarMensaje(Usuario receptor){
@@ -56,17 +56,37 @@ public abstract class Usuario {
         }
         final Usuario other = (Usuario) obj;
         
-        return other.usuarioID.equals(this.usuarioID) && other.contrasenha.equals(this.contrasenha);
+        return other.usuarioID==(this.usuarioID) && other.contrasenia.equals(this.contrasenia);
     }
 
-    public String getUsuarioID() {
+    public int getUsuarioID() {
         return usuarioID;
     }
 
-    public String getContrasenha() {
-        return contrasenha;
+    public String getContrasenia() {
+        return contrasenia;
+    }
+    
+    public abstract int menuUsuario();
+
+    @Override
+    public String toString() {
+        return "" + "usuarioID=" + usuarioID + ", contrasenha=" + contrasenia + ", nombre=" + nombre + ", correo=" + correo + ", telefono=" + telefono + ", direccionFisica=" + direccionFisica + ", verificacion=" + verificacion + ')';
     }
     
     
     
+   public String imprimir(){
+        if (this instanceof Cliente){
+            Cliente c = (Cliente)this;
+            return c.toString();
+        }
+        if (this instanceof Anfitrion){
+            Anfitrion c = (Anfitrion)this;
+            return c.toString();
+        }
+        return "";
+    }
+    
+   
 }
