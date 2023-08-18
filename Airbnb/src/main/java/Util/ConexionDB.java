@@ -5,6 +5,9 @@
 package Util;
 
 import SistemaInterno.Alojamiento;
+import SistemaInterno.Resenha;
+import SistemaInterno.Reserva;
+import SistemaInterno.Sistema;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -12,6 +15,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import Usuarios.*;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -63,7 +69,7 @@ public class ConexionDB {
         return rs;
     }
     
-     public static void mostrarReservasInfo(Connection conexion, int id_usuario) {
+    public static void mostrarReservasInfo(Connection conexion, int id_usuario) {
         try {
             // Iterar a través de los resultados y mostrar los atributos de cada reserva
             String consulta = "SELECT * FROM reserva WHERE cliente_id = " + id_usuario;
@@ -72,81 +78,76 @@ public class ConexionDB {
                 int reservaId = rs.getInt("reserva_id");
                 int clienteId = rs.getInt("cliente_id");
                 int alojamientoId = rs.getInt("alojamiento_id");
+                String fechaInicio = rs.getString("fecha_ingreso");
+                String fechaSalida = rs.getString("fecha_salida");
 
                 // Mostrar los atributos de la reserva
                 System.out.print("Reserva ID: " + reservaId);
                 System.out.print(", Cliente ID: " + clienteId);
+                System.out.print(", fecha IN: " + fechaInicio);
+                System.out.print(", FechaSA: " + fechaSalida);
                 System.out.println(", Alojamiento ID: " + alojamientoId);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
     
-    public static void mostrarAlojamientoInfo(Connection conexion) {
-        String consulta = "SELECT * FROM alojamiento";
-        ResultSet rs = realizarConsultar(conexion, consulta);
+    public static ArrayList<Reserva> reservasPorCliente(int id_usuario) {
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM reserva WHERE cliente_id = " + id_usuario;
+        ResultSet rs = realizarConsultar(c, consulta);
+        ArrayList<Reserva> reservas= new ArrayList<>();
         try {
-            // Iterar a través de los resultados y mostrar los atributos de cada alojamiento
+            
             while (rs.next()) {
+                int reservaId = rs.getInt("reserva_id");
+                int clienteId = rs.getInt("cliente_id");
                 int alojamientoId = rs.getInt("alojamiento_id");
-                int anfitrionId = rs.getInt("anfitrion_id");
-                double precioNoche = rs.getDouble("precio_noche");
-                int habitaciones = rs.getInt("habitaciones");
-                String ubicacion = rs.getString("ubicacion");
-                double calificacion = rs.getDouble("calificacion");
+                String fechaInicio = rs.getString("fecha_ingreso");
+                String fechaSalida = rs.getString("fecha_salida");
 
-                // Mostrar los atributos del alojamiento
-                System.out.print("Alojamiento ID: " + alojamientoId);
-                System.out.print(", Anfitrión ID: " + anfitrionId);
-                System.out.print(", Precio por Noche: " + precioNoche);
-                System.out.print(", Habitaciones: " + habitaciones);
-                System.out.print(", Ubicación: " + ubicacion);
-                System.out.println(", Calificación: " + calificacion);
+                Reserva r = new Reserva(reservaId,clienteId,alojamientoId,fechaInicio,fechaSalida);
+                reservas.add(r);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return reservas;
     }
     
-    
-    
-    public static void mostrarUsuarioInfo(Connection conexion) {
-        String consulta = "SELECT * FROM cliente union SELECT * FROM anfitrion";
-        ResultSet rs = realizarConsultar(conexion, consulta);
+        public static ArrayList<Reserva> reservasPorAlojamiento(int id_alojamiento) {
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM reserva WHERE alojamiento_id = " + id_alojamiento;
+        ResultSet rs = realizarConsultar(c, consulta);
+        ArrayList<Reserva> reservas= new ArrayList<>();
         try {
-            // Iterar a través de los resultados y mostrar los atributos de cada usuario
+            
             while (rs.next()) {
-                int usuarioID = rs.getInt("usuario_id");
-                String nombre = rs.getString("nombre");
-                String contraseña = rs.getString("contrasenia");
-                String telefono = rs.getString("telefono");
-                String correo = rs.getString("correo");
-                String direccion = rs.getString("direccion_fisica");
-                boolean verificacion = rs.getBoolean("verificador");
-
-                // Mostrar los atributos del usuario
-                System.out.print("Usuario ID: " + usuarioID);
-                System.out.print(", Contraseña: " + contraseña);
-                System.out.print(", Nombre: " + nombre);
-                System.out.print(", Apellido: " + nombre);
-                System.out.print(", Correo: " + correo);
-                System.out.print(", Telefono: " + telefono);
-                System.out.print(", Direccion: " + direccion);
-                System.out.println(", Verificado: " + verificacion);
+                int reservaId = rs.getInt("reserva_id");
+                int clienteId = rs.getInt("cliente_id");
+                int alojamientoId = rs.getInt("alojamiento_id");
+                String fechaInicio = rs.getString("fecha_ingreso");
+                String fechaSalida = rs.getString("fecha_salida");
+                
+                Reserva r = new Reserva(reservaId,clienteId,alojamientoId,fechaInicio,fechaSalida);
+                reservas.add(r);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        
+        return reservas;
     }
+    
+   
     public static ArrayList<Usuario> crearListaUsuario() {
         Connection c = ConexionDB.getConection();
         ArrayList<Usuario> usuarios= new ArrayList<>();
         String consulta = "SELECT * FROM cliente union SELECT * FROM anfitrion";
         ResultSet rs = realizarConsultar(c, consulta);
         try {
-            // Iterar a través de los resultados y mostrar los atributos de cada usuario
+
             while (rs.next()) {
                 Integer usuarioID = rs.getInt("usuario_id");
                 String nombre = rs.getString("nombre");
@@ -163,13 +164,11 @@ public class ConexionDB {
                 if (verificacion==false){
                     u = new Cliente(usuarioID,contraseña,nombre,correo,telefono,direccionFisica,verificacion);
                 }
-
                 usuarios.add(u);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
         return usuarios;
     }
     
@@ -178,11 +177,8 @@ public class ConexionDB {
         String consulta = "SELECT * FROM alojamiento";
         ResultSet rs = realizarConsultar(c, consulta);
         ArrayList<Usuario> usuarios = crearListaUsuario();
-        ArrayList <String> servicios = listaServicios();
-        ArrayList <String> reglamentos = listaReglamento();
-                
         ArrayList<Alojamiento> alojamientos = new ArrayList<>();
-        Alojamiento a=null;
+        
         try {
             while (rs.next()) {
                 int alojamientoId = rs.getInt("alojamiento_id");
@@ -191,61 +187,40 @@ public class ConexionDB {
                 int habitaciones = rs.getInt("habitaciones");
                 String ubicacion = rs.getString("ubicacion");
                 double calificacion = rs.getDouble("calificacion");
+                double tarifaAirbnb = rs.getDouble("tarifa_airbnb");
                 
+                ArrayList <String> servicios = listaServicios(alojamientoId);
+                ArrayList <String> reglamentos = listaReglamento(alojamientoId);
                 
                 for (Usuario u: usuarios){
                     if (u.getUsuarioID()==(anfitrionId)){  
                         Anfitrion anfitrion = (Anfitrion)u;
-                        a = new Alojamiento(alojamientoId,anfitrion,precioNoche,habitaciones,ubicacion);
-                        
-                        //Agrega los servicios al alojamientos
-                        for (String s: servicios){
-                            String[] elementos = s.split(",");
-                            String servicio = elementos[1];
-                            int alojamientoidFK = Integer.parseInt(elementos[0]);
-
-                            if (alojamientoidFK==a.getAlojaminetoID()){
-                                a.setServicios(servicio);
-                            }
-                        }
-                        //Agrega las reglas
-                        for (String r: reglamentos){
-                            String[] elementos = r.split(",");
-                            String regla = elementos[1];
-                            int alojamientoidFK = Integer.parseInt(elementos[0]);
-                            
-                            
-                            if (alojamientoidFK==a.getAlojaminetoID()){
-                                a.setReglamento(regla);
-                            }
-                        }
-                        //agrega la calificacion
+                        Alojamiento a = new Alojamiento(alojamientoId,anfitrion,precioNoche,habitaciones,ubicacion,tarifaAirbnb);                      
+                        //Agrega los servicios,reglas y calificacion del alojamiento
+                        a.setServicios(servicios);
+                        a.setReglamento(reglamentos);
                         a.cambiarCalificaion(calificacion);
-                    }
+                        alojamientos.add(a);
+                        listaResenhas(a);
+                    }                    
                 }
-                    
-                alojamientos.add(a);
-            }
+            }    
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return alojamientos;
     }
     
-    public static ArrayList<String> listaServicios() {
+    private static ArrayList<String> listaServicios(int alojamientoId) {
         Connection c = ConexionDB.getConection();
-        String consulta = "SELECT * FROM servicio_alojamiento";
+        String consulta = "SELECT * FROM servicio_alojamiento WHERE alojamiento_id = " + alojamientoId;
         ResultSet rs = realizarConsultar(c, consulta);
         ArrayList <String> servicios = new ArrayList<>();
 
         try {
             while (rs.next()) {
-                String alojamientoId = rs.getString("alojamiento_id");
                 String servicio = rs.getString("servicio");
-                
-                String servicioDatos = alojamientoId+","+servicio;
-
-                servicios.add(servicioDatos);
+                servicios.add(servicio);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -253,24 +228,91 @@ public class ConexionDB {
         return servicios;
     }
     
-    public static ArrayList<String> listaReglamento() {
+    private static ArrayList<String> listaReglamento(int alojamientoId) {
         Connection c = ConexionDB.getConection();
-        String consulta = "SELECT * FROM regla_alojamiento";
+        String consulta = "SELECT * FROM regla_alojamiento WHERE alojamiento_id = " + alojamientoId;
         ResultSet rs = realizarConsultar(c, consulta);
         ArrayList <String> reglamentos = new ArrayList<>();
 
         try {
             while (rs.next()) {
-                String alojamientoId = rs.getString("alojamiento_id");
                 String regla = rs.getString("regla");
-                
-                String servicioDatos = alojamientoId+","+regla;
-
-                reglamentos.add(servicioDatos);
+                reglamentos.add(regla);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return reglamentos;
     }
+    
+    private static ArrayList<Resenha> listaResenhas(Alojamiento alojamiento) {
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM resenia WHERE alojamiento_id = " + alojamiento.getAlojaminetoID();
+        ResultSet rs = realizarConsultar(c, consulta);
+        ArrayList <Resenha> resenhas = new ArrayList<>();
+        ArrayList<Usuario> usuarios = crearListaUsuario();
+
+        try {
+            while (rs.next()) {
+                String comentario = rs.getString("comentario");
+                double calificacion = rs.getDouble("calificacion");
+                int idCliente = rs.getInt("cliente_id");
+                
+                for (Usuario u: usuarios){
+                    if (u.getUsuarioID()==(idCliente)){  
+                        Cliente cliente = (Cliente)u;
+                        Resenha r = new Resenha(comentario,alojamiento,calificacion,cliente);
+                        alojamiento.addUnaResenha(r);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return resenhas;
+    }
+    
+//------------------------------------------------------------------------------------------------------
+//-----------------     METODOS PARA REGISTRAR(INSERT) DATOS EN LA BD       ------------------------------------
+//-----------------------------------------------------------------------------------------------------
+    
+    public static void registrarReserva(Reserva r) {
+        Connection c = ConexionDB.getConection();
+
+        try {
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO reserva VALUES (?,?,?,?,?)");
+            stmt.setString(1, ""+r.getReservaID());
+            stmt.setString( 2,""+r.getClienteID());
+            stmt.setString(3,""+r.getAlojaminetoID());
+            stmt.setString(4, r.getFechaInicio());
+            stmt.setString(5,r.getFechaSalida());
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void registrarAlojamiento(Alojamiento a) {
+        Connection c = ConexionDB.getConection();
+
+        try {
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO alojamiento VALUES (?,?,?,?,?,?)");
+            stmt.setString(1, ""+a.getAlojaminetoID());
+            stmt.setString(2, ""+a.getAnfitrion().getUsuarioID());
+            stmt.setString(3, ""+a.getHabitaciones());
+            stmt.setString(4, a.getUbicacion());
+            stmt.setString(5, ""+a.getCalificacion());
+            stmt.setString(5, ""+a.getTarifaAirbnb());
+            stmt.executeUpdate();
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    
+    
+    
+    
 }

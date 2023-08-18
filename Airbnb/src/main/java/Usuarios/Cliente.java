@@ -6,6 +6,7 @@ package Usuarios;
 
 import SistemaInterno.Resenha;
 import SistemaInterno.Alojamiento;
+import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
 import Util.ConexionDB;
 import java.sql.Connection;
@@ -17,14 +18,23 @@ import java.util.Scanner;
  * @author vv
  */
 public class Cliente extends Usuario{
+    
+    private static ArrayList<Alojamiento> listaFavoritos = new ArrayList<>();
 
     public Cliente(int usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
         super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
     }
-
-    public Cliente(int usuarioID, String contrasenha){
-        super(usuarioID, contrasenha);
+    
+    public ArrayList<Alojamiento> getFavoritos(){
+        return listaFavoritos;
     }
+    
+    @Override
+    public String toString() {
+        return "Cliente {" +super.toString() + '}';
+    }
+
+    
     public void crearReseña(Alojamiento alojamiento){
         //Asignando calificaion a alojamiento
         Scanner sc = new Scanner(System.in);
@@ -34,55 +44,54 @@ public class Cliente extends Usuario{
         alojamiento.cambiarCalificaion(calificacion);
         
         //Creando una resenha
-        System.out.println("Comentario sobre su estancia:");
+        System.out.println("Comentario sobre su estancia:(Dar enter si no desea comentar)");
         String resenha = sc.nextLine();
         Resenha r = new Resenha(resenha,alojamiento,calificacion,this);
-        
+        alojamiento.addUnaResenha(r);
         System.out.println("Se ha actualizado la calificacion de este alojamiento.");
     }
 
-    
-
-
-    @Override
-    public String toString() {
-        return "Cliente {" +super.toString() + '}';
+    public void addListaFavoritos(Alojamiento alojamiento){
+        listaFavoritos.add(alojamiento);
+        System.out.println("Agregado a favoritos");
     }
-    
-    
+
     
     @Override
-    public int menuUsuario() {
+    public void menuUsuario() {
         Connection c = ConexionDB.getConection();
         Scanner sc = new Scanner(System.in);
-        
-        System.out.print( """
-
-                  MENU PRINCIPAL
-            1. Ver alojaminetos
-            2. Mis reservas
-            3. Cerrar Sesion
-                """);
-         
-        int opcion = Sistema.getOpcion(3);
-
-        if (opcion==2){
+        int opcion = 0;
+        do{
             System.out.print( """
-               1. Fechas realizadas
-               2. Fechas por reservar
-            """);
 
-            System.out.println("Escoja una opcion: ");
-            int opcion2 = sc.nextInt();
+                      MENU PRINCIPAL
+                1. Ver alojaminetos
+                2. Mis reservas
+                3. Ver mis alojamientos favoritos
+                4. Cerrar Sesion
+                    """);
 
-            if(opcion2==1){
-                ConexionDB.mostrarReservasInfo(c, this.getUsuarioID());
+            opcion = Sistema.getOpcion(4);
+
+            switch (opcion){
+                case 1:
+                    Sistema.opcionVerAlojamientos(this);
+                    break;
+                case 2:
+                    for(Reserva r:ConexionDB.reservasPorCliente(this.usuarioID)){
+                        System.out.println(r.toString());
+                }
+                    break;
+                case 3:
+                    Sistema.mostrarAlojamientosFavoritos(this);
+                    break;
+                case 4:
+                    System.out.println("***SESION CERRADA CON EXITO***\n");
+                    break;
             }
         }
-
-
-        return opcion;
-        
+        while (opcion!=4);
     }
     
     

@@ -7,6 +7,7 @@ package SistemaInterno;
 import Usuarios.Anfitrion;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.Arrays;
 
 /**
  *
@@ -14,65 +15,139 @@ import java.util.Scanner;
  */
 public class Alojamiento {
     
-    private static int numAlojamiento =1000;
-    protected int alojaminetoID;
-    protected Anfitrion anfitrion;
-    protected double precio;
-    protected int habitaciones;
-    protected String ubicacion;
-    protected double calificacion;
- 
+    private static int numAlojamiento =1011;
+    private int alojaminetoID;
+    private Anfitrion anfitrion;
+    private double precio;
+    private int habitaciones;
+    private String ubicacion;
+    private double calificacion;
+    private double tarifaAirbnb;
+    private ArrayList <String> fechasDisponibles;
     private ArrayList<Double> calificaciones= new ArrayList<>();
     private ArrayList<String> servicios = new ArrayList<>();
     private ArrayList<String> reglamento = new ArrayList<>();
+    private ArrayList<Resenha> resenhas = new ArrayList<>();
 
-    
-    public Alojamiento(Anfitrion anfitrion, double precio, int habitaciones, String ubicacion) {
+    //Contructor que se usa cuando por consola se crea un alojamiento
+    public Alojamiento(Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb) {
         this.alojaminetoID = numAlojamiento;
         this.anfitrion = anfitrion;
         this.precio = precio;
         this.habitaciones = habitaciones;
         this.ubicacion = ubicacion;
         this.calificacion = 0;
+        this.tarifaAirbnb = tarifaAirbnb;
         numAlojamiento++;
+        this.fechasDisponibles=fechas();
     }
     
-    public Alojamiento(int alojaminetoID,Anfitrion anfitrion, double precio, int habitaciones, String ubicacion) {
+    //Constructor usado al recibir datos de la BD
+    public Alojamiento(int alojaminetoID,Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb) {
         this.alojaminetoID = alojaminetoID;
         this.anfitrion = anfitrion;
         this.precio = precio;
         this.habitaciones = habitaciones;
         this.ubicacion = ubicacion;
         this.calificacion = 0;
+        this.tarifaAirbnb=tarifaAirbnb;
         numAlojamiento++;
+        this.fechasDisponibles=fechas();
     }
 
     public int getAlojaminetoID() {
         return alojaminetoID;
     }
-
-    public void setServicios(String servicio) {
-        this.servicios.add(servicio);
+    
+    public Anfitrion getAnfitrion() {
+        return anfitrion;
     }
 
-    public void setReglamento(String regla) {
-        this.reglamento.add(regla);
+    public double getPrecio() {
+        return precio;
+    }
+
+    public int getHabitaciones() {
+        return habitaciones;
+    }
+
+    public double getTarifaAirbnb() {
+        return tarifaAirbnb;
+    }
+
+    public String getUbicacion() {
+        return ubicacion;
+    }
+
+    public double getCalificacion() {
+        return calificacion;
+    }
+    
+    
+    
+    public ArrayList <String> getFechasDisponibles() {
+        return fechasDisponibles;
+    }
+    
+    public void setServicios(ArrayList<String> servicios) {
+        this.servicios = servicios;
+    }
+    public void setReglamento(ArrayList<String> reglamento) {
+        this.reglamento = reglamento;
+    }
+    public ArrayList<Resenha> getResenhas() {
+        return resenhas;
     }
 
     @Override
     public String toString() {
-        return "Alojamiento{" + "alojaminetoID=" + alojaminetoID + ", anfitrion=" + anfitrion.getAnfitrion() + ", precio=" + precio + ", habitaciones=" + habitaciones + ", ubicacion=" + ubicacion + ", calificacion=" + calificacion + ", calificaciones=" + calificaciones + ", servicios=" + servicios + ", reglamento=" + reglamento + '}';
+        return  "alojaminetoID=" + alojaminetoID + ", anfitrion=" + anfitrion.getAnfitrion() + ", precio=" + precio + ", habitaciones=" + habitaciones + ", ubicacion=" + ubicacion + ", calificacion=" + calificacion + ", calificaciones=" + calificaciones + ", servicios=" + servicios + ", reglamento=" + reglamento;
     }
+    
+    public ArrayList<String> fechas(){
+        ArrayList<String> fechasD = new ArrayList<>();
+        
+        for (Integer mes=7;mes<=9;mes++){
+            String txtMes = mes.toString();
+            
+            if(mes<10){
+                txtMes = "0"+txtMes;
+            }
+            for (Integer dia=1;dia<=30;dia++){
+                String txtDia = dia.toString();
+                
+                if(dia<10){
+                    txtDia = "0"+txtDia;
+                }
+                String fecha = "2023-"+txtMes+"-"+txtDia;
+                fechasD.add(fecha);
+            }
+        }
+        return fechasD;
+    }    
     
  
     public void enlistarAlojamiento(){
-        System.out.printf("Lugar en: %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n",this.ubicacion,this.precio,this.calificacion);
+        System.out.printf("Lugar en: %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n    AlojamientoID: %d\n",this.ubicacion,this.precio,this.calificacion,this.alojaminetoID);
     }
     
-    
-    public void detallarAlojamiento(){
-        System.out.printf("\n %s\n-Costo: %s x noche\n-Habitaciones: %d\n-Calificacion: %s estrellas",this.ubicacion.toUpperCase(),this.precio,this.habitaciones,this.calificacion);
+    public void detallarAlojamientoSeleccionado(){
+        System.out.printf("\n %s\n- Anfitrion: %s\n- Costo: %s x noche\n- Habitaciones: %d\n- Calificacion: %s estrellas\n- AlojamientoID: %d\n",this.ubicacion.toUpperCase(),this.anfitrion.getAnfitrion(),this.precio,this.habitaciones,this.calificacion,this.alojaminetoID);
+        
+        if (!servicios.isEmpty()){
+            System.out.println("\n*SERVICIOS DEL ALOJAMINETO*");
+            for(String s:servicios){
+                System.out.println("-"+s);
+            }
+        }
+        if(!reglamento.isEmpty()){
+            System.out.println("\n*REGLAS DEL ALOJAMINETO*");
+            for(String s:reglamento){
+                System.out.println("-"+s);
+            }
+        }
     }
+    
     
     
 //---------------------------------------------------------------------------------------------------
@@ -80,30 +155,29 @@ public class Alojamiento {
     public void cambiarCalificaion(double nuevaCalificacion){  
         this.calificaciones.add(nuevaCalificacion);
         double calificacion=0;
-        int size =0;
         
         for(Double d:this.calificaciones){
             calificacion+=d;
-            size++;
-        }
-        
-        double calificaionFinal = (calificacion)/(size);
+        }     
+        double calificaionFinal = (calificacion)/(calificaciones.size());
         this.calificacion=calificaionFinal;
     }
     
-
-    
-    
+    public void addUnaResenha(Resenha resenha){
+        resenhas.add(resenha);
+    }
+  
 //-------------------------------------------------------------------------------------------
     //Metodos de la opcion publicar alojamientos (ANFITRION)
-    public void addServicio(){
+    public void addUnServicio(){
         Scanner sc = new Scanner(System.in);
         int opcion=0;
         try{
             System.out.println("Servicio que posee su alojamiento: ");
             String servicio = sc.nextLine();
-            this.servicios.add(servicio);
-
+            if (!servicio.isEmpty() && !servicio.isBlank()){
+                this.servicios.add(servicio);
+            }
             System.out.println("Desea agregar otro servicio?\n1.si\n2.no");
             opcion =Sistema.getOpcion(2);
         }
@@ -112,20 +186,21 @@ public class Alojamiento {
         }
         finally{
             if(opcion==1){
-                this.addServicio();
+                this.addUnServicio();
             }
         }
     }
     
-    public void addReglamento(){
+    public void addUnReglamento(){
         Scanner sc = new Scanner(System.in);
         int opcion=0;
 
         try{
             System.out.println("Regla a agregar: ");
             String regla = sc.nextLine();
-            this.reglamento.add(regla);
-
+            if (!regla.isEmpty() && !regla.isBlank()){
+                this.reglamento.add(regla);
+            }
             System.out.println("Desea agregar otra regla?\n1.si\n2.no");
             opcion =Sistema.getOpcion(2);
         }
@@ -134,7 +209,7 @@ public class Alojamiento {
         }
         finally{
             if(opcion==1){
-                this.addReglamento();
+                this.addUnReglamento();
             }
         }
     }

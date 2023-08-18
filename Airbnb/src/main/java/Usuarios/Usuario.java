@@ -67,7 +67,7 @@ public abstract class Usuario {
         return contrasenia;
     }
     
-    public abstract int menuUsuario();
+    public abstract void menuUsuario();
 
     @Override
     public String toString() {

@@ -18,34 +18,16 @@ import java.util.Scanner;
  */
 public class Airbnb {
     
-
     public static void main(String[] args) {
         Connection c = ConexionDB.getConection();
         Scanner sc = new Scanner(System.in);
 
         while(true){
-            int opcion;
             Usuario usuario;
                          
             usuario = Sistema.menuIngreso();
-            do{            
-            opcion =usuario.menuUsuario();
-                    
-                switch(opcion){
-                    case 1:
-
-                        break;
-                    case 2:
-                        Sistema.verAlojamientos();
-                        break;
-                    case 3:
-                        System.out.println("opcion3");
-                        break;
-                    default:
-                        System.out.println("Ingrese una opción correcta.");
-                }
-            }
-            while(opcion!=3);
+      
+            usuario.menuUsuario();
         }
     }
 }

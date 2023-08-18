@@ -5,6 +5,7 @@
 package SistemaInterno;
 
 import Usuarios.Cliente;
+import java.util.ArrayList;
 
 /**
  *
@@ -21,8 +22,12 @@ public class Resenha {
         this.alojamiento = alojamiento;
         this.calificacion = calificacion;
         this.cliente = cliente;
+        
     }
     
-    
+    @Override
+    public String toString(){
+        return "- Calificacion: "+this.calificacion+" / Comentario:"+this.contenido;
+    }
     
 }

@@ -21,27 +21,8 @@ public class Anfitrion extends Usuario {
     public Anfitrion(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono, String direccionFisica, boolean verificacion) {
         super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
     }
-
-    @Override
-    public int menuUsuario() {
-        Connection c = ConexionDB.getConection();
-        
-        System.out.print( """
-                          MENU PRINCIPAL
-                    1. Publicar alojamiento
-                    2. Ver alojamientos
-                    3. Cerrar Sesion
-                """);
-         
-        int opcion = Sistema.getOpcion(3);
-        
-        if (opcion==1){
-            this.publicarAlojamiento();
-        }
-        return opcion;
-    }
     
-     @Override
+    @Override
     public String toString() {
         return "Anfitrion {" +super.toString() + '}';
     }
@@ -49,6 +30,37 @@ public class Anfitrion extends Usuario {
     public String getAnfitrion() {
         return "id: "+usuarioID+" nombre: "+nombre;
     }
+    
+//-------------------------------------------------------------------------------------------------------------    
+
+    @Override
+    public void menuUsuario() {
+        Connection c = ConexionDB.getConection();
+        int opcion;
+        do{
+            System.out.print( """
+                              MENU PRINCIPAL
+                        1. Publicar alojamiento
+                        2. Ver mis alojamientos
+                        3. Cerrar Sesion
+                    """);
+
+            opcion = Sistema.getOpcion(3);
+
+            switch(opcion){
+                case 1:
+                    publicarAlojamiento();
+                    break;
+                case 2:
+                    Sistema.misAlojamientosA(this);
+                    break;
+                    
+            }
+        }
+        while(opcion!=3);
+    }
+    
+
 
 //---------------------------------------------------------------------------------------
     //Metodo de la opcion publicar alojamientos (ANFITRION)
@@ -64,20 +76,27 @@ public class Anfitrion extends Usuario {
         String ciudad = sc.nextLine();  
         
         System.out.print("-Costo: ");
-        double costo = sc.nextDouble();
-        sc.nextLine();
+        double costo = Double.parseDouble(sc.nextLine());
+        //sc.nextLine();
         
         System.out.print("-Numero habitaciones: ");
         int habitaciones = sc.nextInt();
         sc.nextLine();
         
         String direccion = ciudad+"-"+pais;
+        double tarifaAirbnb;
         
-        Alojamiento a = new Alojamiento(this,costo,habitaciones,direccion);
+        do{
+            tarifaAirbnb = (Math.random()*20)+10;
+        }while(tarifaAirbnb>(costo/2));
         
-        a.addServicio();
-        a.addReglamento();
+        
+        Alojamiento a = new Alojamiento(this,costo,habitaciones,direccion,tarifaAirbnb);
+        a.addUnServicio();
+        a.addUnReglamento();
         Sistema.alojamientos.add(a);
+        ConexionDB.registrarAlojamiento(a);
+        
         System.out.println("\n-----------   SE HA PUBLICADO EXITOSAMENTE SU ALOJAMIENTO ---------\n");
         }
         catch(Exception e){

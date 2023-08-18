@@ -4,8 +4,8 @@
  */
 package SistemaInterno;
 
-import Usuarios.Cliente;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 
 /**
@@ -14,22 +14,64 @@ import java.util.Date;
  */
 public class Reserva {
     
-    protected String reservaID;
-    protected Cliente cliente;
-    protected Alojamiento alojamineto;
-    protected String alojaminetoID;
-    protected int tiempoEstancia;
-    protected Double tarifaAirbnb;
-    protected ArrayList<Date> fechasDisponibles = new ArrayList<>();
+    private int reservaID;
+    private int clienteID;
+    private int alojaminetoID;
+    private String fechaInicio;
+    private String fechaSalida;
+    private int tiempoEstancia;
+    private static int reservaIDPred = 9011;
+    
+    
 
-    public Reserva(String reservaID, Cliente cliente, Alojamiento alojamineto, String alojaminetoID, int tiempoEstancia, Double tarifaAirbnb) {
+    public Reserva(int reservaID, int clienteID, int alojaminetoID, String fechaInicio, String fechaSalida) {
         this.reservaID = reservaID;
-        this.cliente = cliente;
-        this.alojamineto = alojamineto;
+        this.clienteID = clienteID;
         this.alojaminetoID = alojaminetoID;
-        this.tiempoEstancia = tiempoEstancia;
-        this.tarifaAirbnb = tarifaAirbnb;
+        this.fechaInicio = fechaInicio;
+        this.fechaSalida = fechaSalida;
+        this.tiempoEstancia = Sistema.diasEstancia(fechaInicio, fechaSalida);
     }
+    
+    public Reserva(int clienteID, int alojaminetoID, String fechaInicio, String fechaSalida) {
+        this.reservaID = reservaIDPred;
+        this.clienteID = clienteID;
+        this.alojaminetoID = alojaminetoID;
+        this.fechaInicio = fechaInicio;
+        this.fechaSalida = fechaSalida;
+        this.tiempoEstancia = Sistema.diasEstancia(fechaInicio, fechaSalida);
+        this.reservaIDPred++;
+    }
+
+    @Override
+    public String toString() {
+        return "- ReservaID= " + reservaID + "\n- ClienteID= " + clienteID + "\n- AlojaminetoID= " + alojaminetoID + "\n- FechaInicio= " + fechaInicio + "\n- FechaSalida= " + fechaSalida + "\n- TiempoEstancia= " + tiempoEstancia +"dias\n";
+    }
+
+    public int getReservaID() {
+        return reservaID;
+    }
+
+    public int getClienteID() {
+        return clienteID;
+    }
+
+    public int getAlojaminetoID() {
+        return alojaminetoID;
+    }
+
+    public String getFechaInicio() {
+        return fechaInicio;
+    }
+
+    public String getFechaSalida() {
+        return fechaSalida;
+    }
+
+    public int getTiempoEstancia() {
+        return tiempoEstancia;
+    }
+
     
     
     
