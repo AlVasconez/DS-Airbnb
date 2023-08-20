@@ -375,12 +375,12 @@ public class Sistema {
     
 //-------Metodos de Ver mis Alojamientos (Menu Anfitrion-Opcion 2)------------------------------------------
     
-    private static Alojamiento elegirUnAlojamiento(Anfitrion anfitrion){
+    public static Alojamiento elegirUnAlojamiento(Anfitrion anfitrion){
         int contador=0;
         Alojamiento aloj =null; 
         ArrayList<Alojamiento> misAlojamientos=new ArrayList<>();
         
-        for(Alojamiento a: alojamientos){
+        for(Alojamiento a: ConexionDB.crearListaAlojamiento()){
             if(a.getAnfitrion().equals(anfitrion)){
                 contador++;
                 System.out.print(contador+")  ");
@@ -428,11 +428,10 @@ public class Sistema {
             System.out.println("""
                                1. Reseñas publicadas
                                2. Reservas realizadas
-                               3. Eliminar reserva
-                               4. Volver
+                               3. Volver
                                """);
 
-            int opcionA = getOpcion(4);
+            int opcionA = getOpcion(3);
 
             switch (opcionA){
                 case 1:
@@ -441,23 +440,29 @@ public class Sistema {
                 case 2:
                     reservasRealizadas(aloj);
                     break;
-                case 3:
-                    reservasRealizadas(aloj);
-                    System.out.println("Ingrese Ide de reserva a eliminar...");
-                    Scanner scr=new Scanner(System.in);
-                    int idReserva= scr.nextInt();
-                    for (Reserva reserva : reservas) {
-                        if (reserva.getReservaID() == idReserva) {
-                            anfitrion.eliminarReserva(reserva);  
-                    }
-                    
-                    }
-                    break;
-                
-                 
-                    
             }
         }
     }
+    
+    public static void eliminarAlojamiento(Anfitrion anfitrion){
+        Alojamiento aloj = elegirUnAlojamiento(anfitrion);
+        if (aloj!=null){
+            System.out.println("Esta seguro de eliminarlo permanentemente");
+            System.out.println("1:Si");
+            System.out.println("2:No");
+            int opcionE = getOpcion(2);
+
+            if(opcionE==1){
+                ConexionDB.deleteAlojamiento(aloj);
+                System.out.println("**SE HA ELIMINADO CORRECTAMENTE**");
+            }
+        }
+    }
+    
+    
+
+    
+    
+    
     
 }

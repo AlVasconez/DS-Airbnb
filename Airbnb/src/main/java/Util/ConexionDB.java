@@ -8,6 +8,7 @@ import SistemaInterno.Alojamiento;
 import SistemaInterno.Resenha;
 import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
+import static SistemaInterno.Sistema.getOpcion;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -16,6 +17,7 @@ import java.sql.SQLException;
 import Usuarios.*;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -319,7 +321,148 @@ public class ConexionDB {
         
     }
     
+//---------------------------------------------------------------------------------------------------------
+//-----------------     METODOS PARA ELIMINAR(DELETE) DATOS EN LA BD       --------------------------------
+//---------------------------------------------------------------------------------------------------------
     
+    public static void deleteAlojamiento(Alojamiento a) {
+        Connection c = ConexionDB.getConection();
+        deleteResenias(a);
+        deleteFechas(a);
+        deleteReserva(a);
+        deleteReglas(a);
+        deleteServicio(a);
+        deleteFavoritos(a);
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM alojamiento WHERE alojamiento_id="+a.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    
+    public static void deleteReserva(Alojamiento aloj) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM reserva WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    public static void deleteFechas(Alojamiento aloj) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM fechas_reservadas WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  
+    }
+    
+    public static void deleteResenias(Alojamiento aloj) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM resenia WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  
+    }
+    
+    public static void deleteReglas(Alojamiento aloj) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM regla_alojamiento WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  
+    }
+    public static void deleteServicio(Alojamiento aloj) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM servicio_alojamiento WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  
+    }
+    
+    public static void deleteFavoritos(Alojamiento aloj) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("DELETE FROM lista_favorito WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }  
+    }
+    
+//---------------------------------------------------------------------------------------------------------
+//-----------------     METODOS PARA MODIFICAR(UPDATE) DATOS EN LA BD       --------------------------------
+//---------------------------------------------------------------------------------------------------------
+    
+    public static void modificarAlojamiento(Anfitrion anfitrion){
+        Scanner sc = new Scanner(System.in);
+        Connection c = ConexionDB.getConection();
+        Alojamiento aloj = Sistema.elegirUnAlojamiento(anfitrion);
+        if (aloj!=null){
+            System.out.println("""
+                               Que cambio desea realizar:
+                               1. precio
+                               2. ubicacion
+                               3. Volver
+                               """);
+            int opcionE = getOpcion(4);
+            
+            if(opcionE!=4){
+                String tipo;
+                String cambio;
+                
+                switch(opcionE){
+                    case 1:
+                        tipo = "habitaciones";
+                        System.out.println("Numero de habitaciones: ");
+                        cambio = ""+sc.nextInt();
+                        sc.nextLine();
+                        try {
+                            PreparedStatement stmt = c.prepareStatement("UPDATE alojamiento SET "+tipo+" = '"+cambio+"' WHERE alojamiento_id="+aloj.getAlojaminetoID());
+                            stmt.executeUpdate();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            System.out.print(e.getMessage());
+                        }
+                            break;
+                    case 2:
+                        tipo = "precio_noche";
+                        System.out.println("Nuevo precio: ");
+                        cambio = ""+sc.nextDouble();
+                        sc.nextLine();
+                        
+                        try {
+                            PreparedStatement stmt = c.prepareStatement("UPDATE alojamiento SET "+tipo+"="+cambio+" WHERE alojamiento_id="+aloj.getAlojaminetoID());
+                            stmt.executeUpdate();
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                            System.out.print(e.getMessage());
+                        }
+                        break;
+
+                }
+                
+                
+                System.out.println("Desea realizar otro cambio a este alojamiento?");
+                System.out.println("1:Si");
+                System.out.println("2:No");
+                int opcion2 = getOpcion(2);
+                if(opcion2==1){
+                    modificarAlojamiento(anfitrion);
+                }
+            }
+        }
+    }
+        
     
     
     
