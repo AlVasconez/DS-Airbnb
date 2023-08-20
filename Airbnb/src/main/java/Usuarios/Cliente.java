@@ -107,7 +107,7 @@ public class Cliente extends Usuario{
         }
         while (opcion!=5);
     }
-    @Override
+ 
 public void eliminarReserva(Reserva reserva) {
     
     for (int i = 0; i < Sistema.reservas.size(); i++) {

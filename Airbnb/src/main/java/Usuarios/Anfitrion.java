@@ -104,7 +104,6 @@ public class Anfitrion extends Usuario {
             System.out.println("********Ingreso de datos erroneo********");
         }
     }
-    @Override
 public void eliminarReserva(Reserva reserva) {
     // 
     for (int i = 0; i < Sistema.reservas.size(); i++) {
@@ -119,7 +118,5 @@ public void eliminarReserva(Reserva reserva) {
     }
 
 }
-     public void eliminarReserva(Reserva reserva){
-       
-   }
+ 
 }
