@@ -428,10 +428,11 @@ public class Sistema {
             System.out.println("""
                                1. Reseñas publicadas
                                2. Reservas realizadas
-                               3. Volver
+                               3. Eliminar reserva
+                               4. Volver
                                """);
 
-            int opcionA = getOpcion(3);
+            int opcionA = getOpcion(4);
 
             switch (opcionA){
                 case 1:
@@ -440,6 +441,21 @@ public class Sistema {
                 case 2:
                     reservasRealizadas(aloj);
                     break;
+                case 3:
+                    reservasRealizadas(aloj);
+                    System.out.println("Ingrese Ide de reserva a eliminar...");
+                    Scanner scr=new Scanner(System.in);
+                    int idReserva= scr.nextInt();
+                    for (Reserva reserva : reservas) {
+                        if (reserva.getReservaID() == idReserva) {
+                            anfitrion.eliminarReserva(reserva);  
+                    }
+                    
+                    }
+                    break;
+                
+                 
+                    
             }
         }
     }
