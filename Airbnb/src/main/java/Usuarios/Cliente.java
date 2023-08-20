@@ -8,6 +8,7 @@ import SistemaInterno.Resenha;
 import SistemaInterno.Alojamiento;
 import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
+import static SistemaInterno.Sistema.reservas;
 import Util.ConexionDB;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -69,7 +70,8 @@ public class Cliente extends Usuario{
                 1. Ver alojaminetos
                 2. Mis reservas
                 3. Ver mis alojamientos favoritos
-                4. Cerrar Sesion
+                4. Eliminar reservas
+                5. Cerrar Sesion
                     """);
 
             opcion = Sistema.getOpcion(4);
@@ -87,12 +89,40 @@ public class Cliente extends Usuario{
                     Sistema.mostrarAlojamientosFavoritos(this);
                     break;
                 case 4:
+                    Sistema.mostrarAlojamientosFavoritos(this);
+                    System.out.println("Ingrese Ide de reserva a eliminar...");
+                    Scanner scr=new Scanner(System.in);
+                    int idReserva= scr.nextInt();
+                    for (Reserva reserva : reservas) {
+                        if (reserva.getReservaID() == idReserva) {
+                            this.eliminarReserva(reserva);  
+                    }
+                    
+                    }
+                    break;
+                case 5:
                     System.out.println("***SESION CERRADA CON EXITO***\n");
                     break;
             }
         }
-        while (opcion!=4);
+        while (opcion!=5);
+    }
+    @Override
+public void eliminarReserva(Reserva reserva) {
+    
+    for (int i = 0; i < Sistema.reservas.size(); i++) {
+        Reserva r = Sistema.reservas.get(i);
+        if (r.getClienteID() == this.usuarioID && r.getReservaID() == reserva.getReservaID()) {
+            Sistema.reservas.remove(i);
+            System.out.println("Reserva eliminada con éxito.");
+            ConexionDB.eliminarReserva(reserva.getReservaID());
+            
+            return; 
+        }
     }
     
+    
+    System.out.println("No se encontró la reserva para eliminar.");
+} 
     
 }
