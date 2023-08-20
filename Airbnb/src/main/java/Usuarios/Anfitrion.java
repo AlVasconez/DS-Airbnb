@@ -5,6 +5,7 @@
 package Usuarios;
 
 import SistemaInterno.Alojamiento;
+import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
 import Util.ConexionDB;
 import java.sql.Connection;
@@ -41,7 +42,7 @@ public class Anfitrion extends Usuario {
             System.out.print( """
                               MENU PRINCIPAL
                         1. Publicar alojamiento
-                        2. Ver mis alojamientos
+                        2. Ver mis alojamientos 
                         3. Cerrar Sesion
                     """);
 
@@ -103,5 +104,19 @@ public class Anfitrion extends Usuario {
             System.out.println("********Ingreso de datos erroneo********");
         }
     }
-    
+    @Override
+public void eliminarReserva(Reserva reserva) {
+    // 
+    for (int i = 0; i < Sistema.reservas.size(); i++) {
+        Reserva r = Sistema.reservas.get(i);
+        if (r.getAlojaminetoID() == reserva.getAlojaminetoID() && r.getReservaID() == reserva.getReservaID()) {
+            Sistema.reservas.remove(i);
+            System.out.println("Reserva eliminada con éxito.");
+            ConexionDB.eliminarReserva(reserva.getReservaID());
+            System.out.println("Reserva eliminada");
+            return; 
+        }
+    }
+
+}
 }
