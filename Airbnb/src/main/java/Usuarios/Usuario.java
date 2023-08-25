@@ -67,6 +67,10 @@ public abstract class Usuario {
         return contrasenia;
     }
     
+    public String getNombre() {
+        return nombre;
+    }
+    
     public abstract void menuUsuario();
 
     @Override

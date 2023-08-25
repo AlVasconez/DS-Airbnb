@@ -29,11 +29,14 @@ public class ConexionDB {
     private static ConexionDB instance;
     private Connection conn = null;
     private String db = "airbnb";
-    private String user = "root";
-    private String password = "root";
+    private String user = "Airbnb";
+    private String password = "Proyecto-Airbnb";
     private String ip = "localhost";
     private String puerto = "3306";
     private String cadenaCon = String.format("jdbc:mysql://%s/%s",ip,db);
+    private static int idServicio = 10;
+    private static int idRegla = 10;
+    private static int idFavorito = 10;
     
     private ConexionDB(){
         try{
@@ -55,6 +58,8 @@ public class ConexionDB {
         return instance.conn;
     }
     
+
+    
     private static ResultSet realizarConsultar(Connection conexion, String consulta) {
         ResultSet rs = null;
         try {
@@ -70,6 +75,10 @@ public class ConexionDB {
         }
         return rs;
     }
+    
+//-------------------------------------------------------------------------------------------------------------
+//-----------------     METODOS PARA CONSULTAR DATOS DE LA BD       -------------------------------------------
+//-------------------------------------------------------------------------------------------------------------
     
     public static void mostrarReservasInfo(Connection conexion, int id_usuario) {
         try {
@@ -91,7 +100,7 @@ public class ConexionDB {
                 System.out.println(", Alojamiento ID: " + alojamientoId);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
 
@@ -114,12 +123,13 @@ public class ConexionDB {
                 reservas.add(r);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return reservas;
     }
     
-        public static ArrayList<Reserva> reservasPorAlojamiento(int id_alojamiento) {
+    
+    public static ArrayList<Reserva> reservasPorAlojamiento(int id_alojamiento) {
         Connection c = ConexionDB.getConection();
         String consulta = "SELECT * FROM reserva WHERE alojamiento_id = " + id_alojamiento;
         ResultSet rs = realizarConsultar(c, consulta);
@@ -137,13 +147,13 @@ public class ConexionDB {
                 reservas.add(r);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return reservas;
     }
+
     
-   
-    public static ArrayList<Usuario> crearListaUsuario() {
+    public static ArrayList<Usuario> usuarios() {
         Connection c = ConexionDB.getConection();
         ArrayList<Usuario> usuarios= new ArrayList<>();
         String consulta = "SELECT * FROM cliente union SELECT * FROM anfitrion";
@@ -169,16 +179,16 @@ public class ConexionDB {
                 usuarios.add(u);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return usuarios;
     }
     
-    public static ArrayList<Alojamiento> crearListaAlojamiento() {
+    public static ArrayList<Alojamiento> alojamientos() {
         Connection c = ConexionDB.getConection();
         String consulta = "SELECT * FROM alojamiento";
         ResultSet rs = realizarConsultar(c, consulta);
-        ArrayList<Usuario> usuarios = crearListaUsuario();
+        ArrayList<Usuario> usuarios = usuarios();
         ArrayList<Alojamiento> alojamientos = new ArrayList<>();
         
         try {
@@ -191,29 +201,29 @@ public class ConexionDB {
                 double calificacion = rs.getDouble("calificacion");
                 double tarifaAirbnb = rs.getDouble("tarifa_airbnb");
                 
-                ArrayList <String> servicios = listaServicios(alojamientoId);
-                ArrayList <String> reglamentos = listaReglamento(alojamientoId);
+//                ArrayList <String> servicios = servicios(alojamientoId);
+//                ArrayList <String> reglamentos = reglamento(alojamientoId);
                 
                 for (Usuario u: usuarios){
                     if (u.getUsuarioID()==(anfitrionId)){  
                         Anfitrion anfitrion = (Anfitrion)u;
                         Alojamiento a = new Alojamiento(alojamientoId,anfitrion,precioNoche,habitaciones,ubicacion,tarifaAirbnb);                      
                         //Agrega los servicios,reglas y calificacion del alojamiento
-                        a.setServicios(servicios);
-                        a.setReglamento(reglamentos);
+//                        a.setServicios(servicios);
+//                        a.setReglamento(reglamentos);
                         a.cambiarCalificaion(calificacion);
                         alojamientos.add(a);
-                        listaResenhas(a);
+                        resenhas(a);
                     }                    
                 }
             }    
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return alojamientos;
     }
     
-    private static ArrayList<String> listaServicios(int alojamientoId) {
+    public static ArrayList<String> servicios(int alojamientoId) {
         Connection c = ConexionDB.getConection();
         String consulta = "SELECT * FROM servicio_alojamiento WHERE alojamiento_id = " + alojamientoId;
         ResultSet rs = realizarConsultar(c, consulta);
@@ -225,12 +235,12 @@ public class ConexionDB {
                 servicios.add(servicio);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return servicios;
     }
     
-    private static ArrayList<String> listaReglamento(int alojamientoId) {
+    public static ArrayList<String> reglamento(int alojamientoId) {
         Connection c = ConexionDB.getConection();
         String consulta = "SELECT * FROM regla_alojamiento WHERE alojamiento_id = " + alojamientoId;
         ResultSet rs = realizarConsultar(c, consulta);
@@ -242,17 +252,38 @@ public class ConexionDB {
                 reglamentos.add(regla);
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return reglamentos;
     }
     
-    private static ArrayList<Resenha> listaResenhas(Alojamiento alojamiento) {
+    public static ArrayList<Alojamiento> favoritos(int clienteId) {
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM lista_favorito WHERE cliente_id = " + clienteId;
+        ResultSet rs = realizarConsultar(c, consulta);
+        ArrayList <Alojamiento> alojamientos = alojamientos();
+        ArrayList <Alojamiento> alojFavs = new ArrayList<>();
+        try {
+            while (rs.next()) {
+                int aloj_id = rs.getInt("alojamiento_id");
+                for (Alojamiento a:alojamientos){
+                    if(a.getAlojaminetoID()==aloj_id){
+                        alojFavs.add(a);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        return alojFavs;
+    }
+    
+    public static ArrayList<Resenha> resenhas(Alojamiento alojamiento) {
         Connection c = ConexionDB.getConection();
         String consulta = "SELECT * FROM resenia WHERE alojamiento_id = " + alojamiento.getAlojaminetoID();
         ResultSet rs = realizarConsultar(c, consulta);
         ArrayList <Resenha> resenhas = new ArrayList<>();
-        ArrayList<Usuario> usuarios = crearListaUsuario();
+        ArrayList<Usuario> usuarios = usuarios();
 
         try {
             while (rs.next()) {
@@ -264,19 +295,42 @@ public class ConexionDB {
                     if (u.getUsuarioID()==(idCliente)){  
                         Cliente cliente = (Cliente)u;
                         Resenha r = new Resenha(comentario,alojamiento,calificacion,cliente);
-                        alojamiento.addUnaResenha(r);
                     }
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return resenhas;
     }
     
-//------------------------------------------------------------------------------------------------------
-//-----------------     METODOS PARA REGISTRAR(INSERT) DATOS EN LA BD       ------------------------------------
-//-----------------------------------------------------------------------------------------------------
+    public static void resenhas(Cliente cliente) {
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM resenia WHERE cliente_id = " + cliente.getUsuarioID();
+        ResultSet rs = realizarConsultar(c, consulta);
+        ArrayList<Alojamiento> alojamientos = alojamientos();
+
+        try {
+            while (rs.next()) {
+                String comentario = rs.getString("comentario");
+                double calificacion = rs.getDouble("calificacion");
+                int idalojamiento = rs.getInt("alojamiento_id");
+                
+                for (Alojamiento a: alojamientos){
+                    if (a.getAlojaminetoID()==(idalojamiento)){  
+                        Resenha r = new Resenha(comentario,a,calificacion,cliente);
+                        System.out.println(r.toString());
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+//----------------------------------------------------------------------------------------------------------
+//-----------------     METODOS PARA REGISTRAR(INSERT) DATOS EN LA BD       --------------------------------
+//----------------------------------------------------------------------------------------------------------
     
     public static void registrarReserva(Reserva r) {
         Connection c = ConexionDB.getConection();
@@ -284,14 +338,15 @@ public class ConexionDB {
         try {
             PreparedStatement stmt = c.prepareStatement("INSERT INTO reserva VALUES (?,?,?,?,?)");
             stmt.setString(1, ""+r.getReservaID());
-            stmt.setString( 2,""+r.getClienteID());
-            stmt.setString(3,""+r.getAlojaminetoID());
+            stmt.setString(2, ""+r.getClienteID());
+            stmt.setString(3, ""+r.getAlojaminetoID());
             stmt.setString(4, r.getFechaInicio());
-            stmt.setString(5,r.getFechaSalida());
+            stmt.setString(5, r.getFechaSalida());
             stmt.executeUpdate();
+            System.out.println("**SE HA REALIZADO SU RESERVA CORRECTAMENTE**");
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
     
@@ -309,99 +364,103 @@ public class ConexionDB {
             stmt.executeUpdate();
 
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
     }
     
-    public static void eliminarReserva(int reservaId){
+    public static void registrarServicio(int aloj_id,String servicio) {
         Connection c = ConexionDB.getConection();
-        String consulta =" DELETE FROM reserva WHERE reserva_id ="+reservaId+";";
-        realizarConsultar(c, consulta);
-        System.out.println("Reserva Eliminada");
-        
+        try {
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO servicio_alojamiento VALUES (?,?,?)");
+            stmt.setString(1, ""+aloj_id);
+            stmt.setString(2, ""+idServicio);
+            stmt.setString(3, servicio);
+            stmt.executeUpdate();
+            idServicio++;
+            System.out.println("** REGISTRADO CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void registrarRegla(int aloj_id,String regla) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO regla_alojamiento VALUES (?,?,?)");
+            stmt.setString(1, ""+aloj_id);
+            stmt.setString(2, ""+idRegla);
+            stmt.setString(3, regla);
+            stmt.executeUpdate();
+            idRegla++;
+            System.out.println("** REGISTRADO CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void registrarResenha(int cliente_id,int aloj_id,String comentario,double calificacion) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO resenia VALUES (?,?,?,?)");
+            stmt.setString(1, ""+cliente_id);
+            stmt.setString(2, ""+aloj_id);
+            stmt.setString(3, comentario);
+            stmt.setString(4, ""+calificacion);
+            stmt.executeUpdate();
+            System.out.println("** REGISTRADO CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void registrarFavorito(int aloj_id,int cliente_id) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("INSERT INTO lista_favorito VALUES (?,?)");
+            stmt.setString(1, ""+aloj_id);
+            stmt.setString(2, ""+cliente_id);
+            stmt.executeUpdate();
+            System.out.println("** REGISTRADO CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
     }
     
 //---------------------------------------------------------------------------------------------------------
 //-----------------     METODOS PARA ELIMINAR(DELETE) DATOS EN LA BD       --------------------------------
 //---------------------------------------------------------------------------------------------------------
     
-    public static void deleteAlojamiento(Alojamiento a) {
-        Connection c = ConexionDB.getConection();
-        deleteResenias(a);
-        deleteFechas(a);
-        deleteReserva(a);
-        deleteReglas(a);
-        deleteServicio(a);
-        deleteFavoritos(a);
-        try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM alojamiento WHERE alojamiento_id="+a.getAlojaminetoID());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    
-    public static void deleteReserva(Alojamiento aloj) {
+ 
+    public static void deleteAlojamiento(Alojamiento aloj) {
         Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM reserva WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            PreparedStatement stmt = c.prepareStatement("call procedure 'nombre del sp (falta crearlo)'("+aloj.getAlojaminetoID()+")");
             stmt.executeUpdate();
+            System.out.println("**SE HA ELIMINADO CORRECTAMENTE**");
         } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-    public static void deleteFechas(Alojamiento aloj) {
-        Connection c = ConexionDB.getConection();
-        try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM fechas_reservadas WHERE alojamiento_id="+aloj.getAlojaminetoID());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }  
     }
     
-    public static void deleteResenias(Alojamiento aloj) {
+    public static void deleteReserva(Alojamiento aloj,String fecha) {
         Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM resenia WHERE alojamiento_id="+aloj.getAlojaminetoID());
+            PreparedStatement stmt = c.prepareStatement("call procedure 'nombre del sp (falta crearlo)'("+aloj.getAlojaminetoID()+",'"+fecha+"')");
             stmt.executeUpdate();
+            System.out.println("**SE HA ELIMINADO CORRECTAMENTE**");
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }  
     }
     
-    public static void deleteReglas(Alojamiento aloj) {
-        Connection c = ConexionDB.getConection();
-        try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM regla_alojamiento WHERE alojamiento_id="+aloj.getAlojaminetoID());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }  
-    }
-    public static void deleteServicio(Alojamiento aloj) {
-        Connection c = ConexionDB.getConection();
-        try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM servicio_alojamiento WHERE alojamiento_id="+aloj.getAlojaminetoID());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }  
-    }
-    
-    public static void deleteFavoritos(Alojamiento aloj) {
-        Connection c = ConexionDB.getConection();
-        try {
-            PreparedStatement stmt = c.prepareStatement("DELETE FROM lista_favorito WHERE alojamiento_id="+aloj.getAlojaminetoID());
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }  
-    }
-    
-//---------------------------------------------------------------------------------------------------------
+
+//----------------------------------------------------------------------------------------------------------
 //-----------------     METODOS PARA MODIFICAR(UPDATE) DATOS EN LA BD       --------------------------------
-//---------------------------------------------------------------------------------------------------------
+//----------------------------------------------------------------------------------------------------------
     
     public static void modificarAlojamiento(Anfitrion anfitrion){
         Scanner sc = new Scanner(System.in);
@@ -409,52 +468,46 @@ public class ConexionDB {
         Alojamiento aloj = Sistema.elegirUnAlojamiento(anfitrion);
         if (aloj!=null){
             System.out.println("""
-                               Que cambio desea realizar:
-                               1. precio
-                               2. ubicacion
-                               3. Volver
+                               Que cambio desea realizar?
+                               1. cantidad de habitaciones
+                               2. precio x noche
+                               3. ubicacion del alojamiento
+                               4. Volver
                                """);
             int opcionE = getOpcion(4);
-            
             if(opcionE!=4){
-                String tipo;
-                String cambio;
-                
-                switch(opcionE){
-                    case 1:
-                        tipo = "habitaciones";
-                        System.out.println("Numero de habitaciones: ");
-                        cambio = ""+sc.nextInt();
-                        sc.nextLine();
-                        try {
-                            PreparedStatement stmt = c.prepareStatement("UPDATE alojamiento SET "+tipo+" = '"+cambio+"' WHERE alojamiento_id="+aloj.getAlojaminetoID());
-                            stmt.executeUpdate();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                            System.out.print(e.getMessage());
-                        }
+                String tipo=null;
+                String cambio=null;             
+                try {
+                    switch(opcionE){
+                        case 1:
+                            tipo = "habitaciones";
+                            System.out.println("Numero de habitaciones: ");
+                            cambio = ""+sc.nextInt();
+                            sc.nextLine();
+                                break;
+                        case 2:
+                            tipo = "precio_noche";
+                            System.out.println("Nuevo precio: ");
+                            cambio = ""+sc.nextDouble();
+                            sc.nextLine();
                             break;
-                    case 2:
-                        tipo = "precio_noche";
-                        System.out.println("Nuevo precio: ");
-                        cambio = ""+sc.nextDouble();
-                        sc.nextLine();
-                        
-                        try {
-                            PreparedStatement stmt = c.prepareStatement("UPDATE alojamiento SET "+tipo+"="+cambio+" WHERE alojamiento_id="+aloj.getAlojaminetoID());
-                            stmt.executeUpdate();
-                        } catch (SQLException e) {
-                            e.printStackTrace();
-                            System.out.print(e.getMessage());
-                        }
-                        break;
+                        case 3:
+                            tipo = "ubicacion";
+                            System.out.println("Nueva ubicacion: ");
+                            cambio = "'"+sc.nextLine()+"'";
+                            break;
+                    }
 
+                        PreparedStatement stmt = c.prepareStatement("UPDATE alojamiento SET "+tipo+" = "+cambio+" WHERE alojamiento_id="+aloj.getAlojaminetoID());
+                        stmt.executeUpdate();
+                        System.out.println("**SE HA CAMBIADO CORRECTAMENTE**");
+                } catch (SQLException e) {
+                    System.out.print(e.getMessage());
                 }
                 
-                
                 System.out.println("Desea realizar otro cambio a este alojamiento?");
-                System.out.println("1:Si");
-                System.out.println("2:No");
+                System.out.println("1. Si\n2. No");
                 int opcion2 = getOpcion(2);
                 if(opcion2==1){
                     modificarAlojamiento(anfitrion);
@@ -462,8 +515,5 @@ public class ConexionDB {
             }
         }
     }
-        
-    
-    
     
 }

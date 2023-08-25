@@ -8,7 +8,6 @@ import SistemaInterno.Resenha;
 import SistemaInterno.Alojamiento;
 import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
-import static SistemaInterno.Sistema.reservas;
 import Util.ConexionDB;
 import java.sql.Connection;
 import java.util.ArrayList;
@@ -20,16 +19,10 @@ import java.util.Scanner;
  */
 public class Cliente extends Usuario{
     
-    private static ArrayList<Alojamiento> listaFavoritos = new ArrayList<>();
-
     public Cliente(int usuarioID, String contrasenha, String nombre, String correo, String telefono,String direccionFisica, boolean verificacion) {
         super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
     }
-    
-    public ArrayList<Alojamiento> getFavoritos(){
-        return listaFavoritos;
-    }
-    
+       
     @Override
     public String toString() {
         return "Cliente {" +super.toString() + '}';
@@ -38,31 +31,33 @@ public class Cliente extends Usuario{
     
     public void crearReseña(Alojamiento alojamiento){
         //Asignando calificaion a alojamiento
+        try{
         Scanner sc = new Scanner(System.in);
         System.out.println("Calificacion para este alojamiento(Ex:4.3):");
-        double calificacion = sc.nextInt();
+        Double calificacion = sc.nextDouble();
         sc.nextLine();
         alojamiento.cambiarCalificaion(calificacion);
         
         //Creando una resenha
         System.out.println("Comentario sobre su estancia:(Dar enter si no desea comentar)");
         String resenha = sc.nextLine();
-        Resenha r = new Resenha(resenha,alojamiento,calificacion,this);
-        alojamiento.addUnaResenha(r);
+        ConexionDB.registrarResenha(this.usuarioID, alojamiento.getAlojaminetoID(), resenha, calificacion);
         System.out.println("Se ha actualizado la calificacion de este alojamiento.");
+        }
+        catch(Exception e){
+            System.out.println(e.getMessage());
+            System.out.println("****ERROR AL INGRESAR VALORES. INTENTE DE NUEVO****");
+        }
     }
 
     public void addListaFavoritos(Alojamiento alojamiento){
-        listaFavoritos.add(alojamiento);
-        System.out.println("Agregado a favoritos");
+        ConexionDB.registrarFavorito(alojamiento.getAlojaminetoID(),this.usuarioID);
     }
 
     
     @Override
     public void menuUsuario() {
-        Connection c = ConexionDB.getConection();
-        Scanner sc = new Scanner(System.in);
-        int opcion = 0;
+        int opcion;
         do{
             System.out.print( """
 
@@ -70,11 +65,11 @@ public class Cliente extends Usuario{
                 1. Ver alojaminetos
                 2. Mis reservas
                 3. Ver mis alojamientos favoritos
-                4. Eliminar reservas
+                4. Ver mis reseñas realizadas
                 5. Cerrar Sesion
                     """);
 
-            opcion = Sistema.getOpcion(4);
+            opcion = Sistema.getOpcion(5);
 
             switch (opcion){
                 case 1:
@@ -89,16 +84,7 @@ public class Cliente extends Usuario{
                     Sistema.mostrarAlojamientosFavoritos(this);
                     break;
                 case 4:
-                    Sistema.mostrarAlojamientosFavoritos(this);
-                    System.out.println("Ingrese Ide de reserva a eliminar...");
-                    Scanner scr=new Scanner(System.in);
-                    int idReserva= scr.nextInt();
-                    for (Reserva reserva : reservas) {
-                        if (reserva.getReservaID() == idReserva) {
-                            this.eliminarReserva(reserva);  
-                    }
-                    
-                    }
+                    ConexionDB.resenhas(this);
                     break;
                 case 5:
                     System.out.println("***SESION CERRADA CON EXITO***\n");
@@ -107,22 +93,6 @@ public class Cliente extends Usuario{
         }
         while (opcion!=5);
     }
- 
-public void eliminarReserva(Reserva reserva) {
     
-    for (int i = 0; i < Sistema.reservas.size(); i++) {
-        Reserva r = Sistema.reservas.get(i);
-        if (r.getClienteID() == this.usuarioID && r.getReservaID() == reserva.getReservaID()) {
-            Sistema.reservas.remove(i);
-            System.out.println("Reserva eliminada con éxito.");
-            ConexionDB.eliminarReserva(reserva.getReservaID());
-            
-            return; 
-        }
-    }
-    
-    
-    System.out.println("No se encontró la reserva para eliminar.");
-} 
     
 }

@@ -21,12 +21,7 @@ import java.util.Random;
  * @author vv
  */
 public class Sistema {
-    
-    public static ArrayList<Alojamiento> alojamientos = ConexionDB.crearListaAlojamiento();
-    public static ArrayList<Usuario> usuarios = ConexionDB.crearListaUsuario();
-    public static ArrayList<Reserva> reservas = new ArrayList<>();
     static Scanner sc = new Scanner(System.in);
-
 
 //---------------------------------------------------------------------------------------------------
 //  Metodo usado para recibir un numero por consola (PARA NO REPETIRLO A CADA RATO)
@@ -95,7 +90,7 @@ public class Sistema {
 //  un usuario y luego verificarlo. 
   
     private static Usuario getUsuario(int usuario, String contrasenia){
-        for (Usuario u:usuarios){
+        for (Usuario u:ConexionDB.usuarios()){
             if((u.getUsuarioID()==(usuario)) &&(u.getContrasenia().equals(contrasenia))){
                 return u;
             }
@@ -104,7 +99,7 @@ public class Sistema {
     }
     
     private static boolean verificacion(int usuario, String contrasenia){
-        for (Usuario u:usuarios){
+        for (Usuario u:ConexionDB.usuarios()){
             if((u.getUsuarioID()==(usuario)) &&(u.getContrasenia().equals(contrasenia))){
                 return true;
             }
@@ -155,7 +150,7 @@ public class Sistema {
         int opcionA;
         int contador = 1;
         
-        for(Alojamiento a:alojamientos){
+        for(Alojamiento a:ConexionDB.alojamientos()){
             try{
                 System.out.print(contador+")  ");
                 a.enlistarAlojamiento();
@@ -167,7 +162,7 @@ public class Sistema {
         }
         System.out.println(contador+")    Volver");
 
-        opcionA=getOpcion(alojamientos.size()+1);
+        opcionA=getOpcion(ConexionDB.alojamientos().size()+1);
         
         return opcionA;
     }
@@ -176,7 +171,7 @@ public class Sistema {
         int opcion2;
         try{
             int opcion = verTodosLosAlojamientos();
-            Alojamiento aloj = alojamientos.get(opcion-1);
+            Alojamiento aloj = ConexionDB.alojamientos().get(opcion-1);
             aloj.detallarAlojamientoSeleccionado();
             do{
             //  MENU OPCIONES DE ALOJAMIENTO
@@ -214,119 +209,24 @@ public class Sistema {
  //Reservar Alojamiento (Menu de Alolamientos-case 1)---------------------------------------------------------
     //  Aun falta terminar
     private static void realizarReserva(Cliente cliente, Alojamiento aloj){
-        Random r = new Random(); 
-        int numero1 = r.nextInt((3 - 1) + 1) + 1;
-        int numero2 = r.nextInt((3 - 1) + 1) + 1;
-        System.out.println(calendarioAgosto(numero1));
-        System.out.println(calendarioSeptiembre(numero2));
+        
         System.out.print("Indique desde que fecha desea reservar EX:(MES-DIA -> 08-23): ");
         String fInicio = "2023-"+sc.nextLine();
         System.out.print("Indique hasta que fecha desea reservar EX:(MES-DIA -> 08-25): ");
         String fFinal = "2023-"+sc.nextLine();
         
-        //cambiar tarifaAirbnb de reserva a alojamiento
-        //cambiar clienteId y alojamientoId en atributos reserva por sus clases 
+        
         Reserva reserva = new Reserva(cliente.getUsuarioID(),aloj.getAlojaminetoID(),fInicio,fFinal);
-        //metodo para escribirlo en la BD
         ConexionDB.registrarReserva(reserva);
         
-        System.out.println("******  SE HA REGISTRADO SU RESERVA *******");
     }
     
-    private static String calendarioAgosto(int numero){
 
-        if(numero==1){
-            return        ("""
-                           |---------------------------------------|
-                           |              agosto 2023              |
-                           |---------------------------------------|
-                           | 1 | 2 | x | x | x | 6 | 7 | 8 | 9 | 10|
-                           |---------------------------------------|
-                           | 11| 12| 13| 14| x | x | x | x | x | 20|
-                           |---------------------------------------|
-                           | 21| 22| 23| 24| 25| 26| 27| 28| 29| 30|
-                           |---------------------------------------|
-                           """);
-        }
-        if(numero==2){
-        return            ("""
-                           |---------------------------------------|
-                           |              agosto 2023              |
-                           |---------------------------------------|
-                           | 1 | x | 3 | 4 | 5 | x | 7 | 8 | x | 10|
-                           |---------------------------------------|
-                           | 11| 12| x | x | x | 16| 17| x | 19| 20|
-                           |---------------------------------------|
-                           | 21| 22| 23| 24| 25| x | x | x | 29| 30|
-                           |---------------------------------------|
-                           """);
-        }
-        if(numero==3){
-        return            ("""
-                           |---------------------------------------|
-                           |              agosto 2023              |
-                           |---------------------------------------|
-                           | x | x | x | x | x | x | 7 | 8 | 9 | 10|
-                           |---------------------------------------|
-                           | 11| 12| 13| x | 15| 16| x | x | 19| 20|
-                           |---------------------------------------|
-                           | 21| 22| 23| x | x | 26| 27| 28| 29| 30|
-                           |---------------------------------------|
-                           """);
-        }
-        return"";
-    }
-
-    private static String calendarioSeptiembre(int numero){
-
-        if(numero==1){
-            return        ("""
-                           |---------------------------------------|
-                           |            septiembre 2023            |
-                           |---------------------------------------|
-                           | 1 | 2 | x | 4 | x | x | 7 | 8 | 9 | 10|
-                           |---------------------------------------|
-                           | 11| 12| x | 14| 15| x | x | 18| 19| 20|
-                           |---------------------------------------|
-                           | 21| 22| 23| 24| 25| 26| x | x | x | x |
-                           |---------------------------------------|
-                           """);
-        }
-        if(numero==2){
-        return            ("""
-                           |---------------------------------------|
-                           |            septiembre 2023            |
-                           |---------------------------------------|
-                           | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10|
-                           |---------------------------------------|
-                           | 11| 12| x | x | 15| 16| 17| 18| 19| 20|
-                           |---------------------------------------|
-                           | 21| 22| 23| 24| 25| x | 27| 28| 29| 30|
-                           |---------------------------------------|
-                           """);
-        }
-        if(numero==3){
-        return            ("""
-                           |---------------------------------------|
-                           |            septiembre 2023            |
-                           |---------------------------------------|
-                           | 1 | 2 | 3 | x | x | x | x | 8 | 9 | 10|
-                           |---------------------------------------|
-                           | 11| 12| 13| x | 15| x | 17| 18| 19| 20|
-                           |---------------------------------------|
-                           | 21| 22| 23| 24| 25| 26| 27| 28| 29| 30|
-                           |---------------------------------------|
-                           """);
-        }
-        return"";
-    }
-    
-    
  //Ver reseñas del alojamiento (Menu de Alolamientos-case2)---------------------------------------------------
     private static void mostrarReseniasAlojamiento(Alojamiento aloj){
-        if(!aloj.getResenhas().isEmpty()){
-            System.out.println("--------- RESEÑAS ----------------\n");
-            for(Resenha r:aloj.getResenhas()){
+        if(!ConexionDB.resenhas(aloj).isEmpty()){
+            System.out.println("\n--------- RESEÑAS DE ESTE ALOJAMIENTO ----------\n");
+            for(Resenha r:ConexionDB.resenhas(aloj)){
                 r.toString();
             }
         }
@@ -334,34 +234,30 @@ public class Sistema {
             System.out.println("El alojamiento no posee ninguna reseña realizada");
         }
     }
-    
- //Agregar a favoritos (Menu de Alolamientos-case3)----------------------------------------------------------
-  //    Esta opcion es un metodo de la clase CLiente   
+
     
  //Realizar reseña (Menu de Alolamientos-case4)----------------------------------------------------------------
     private static void realizarResenha(Cliente cliente, Alojamiento aloj){
-        if(reservacionPrevia(cliente, aloj)){
-            cliente.crearReseña(aloj);
+        boolean puede = false;
+        for(Reserva r:ConexionDB.reservasPorCliente(cliente.getUsuarioID())){
+            if(r.getAlojaminetoID()==(aloj.getAlojaminetoID())){
+                puede=true;
+            }
         }
+        if (puede){
+            cliente.crearReseña(aloj);
+        }           
         else{
             System.out.println("No ha reservado este alojamiento. No puede realizar reseña");
         }
     }
     
-    private static boolean reservacionPrevia(Cliente cliente, Alojamiento aloj){
-        for(Reserva r:reservas){
-            if (r.getClienteID()==(cliente.getUsuarioID())&& r.getAlojaminetoID()==(aloj.getAlojaminetoID())){
-                return true;
-            }
-        }
-        return false;
-    }
     
     
 //----------------metodos de la opcion ver mis alojamientos favoritos (Menu Cliente-opcion 3)-----------------------------
     public static void mostrarAlojamientosFavoritos(Cliente cliente){
-        if(!cliente.getFavoritos().isEmpty())
-            for(Alojamiento aloj:cliente.getFavoritos()){
+        if(!ConexionDB.favoritos(cliente.getUsuarioID()).isEmpty())
+            for(Alojamiento aloj:ConexionDB.favoritos(cliente.getUsuarioID())){
                 aloj.detallarAlojamientoSeleccionado();
             }
         else{
@@ -380,7 +276,7 @@ public class Sistema {
         Alojamiento aloj =null; 
         ArrayList<Alojamiento> misAlojamientos=new ArrayList<>();
         
-        for(Alojamiento a: ConexionDB.crearListaAlojamiento()){
+        for(Alojamiento a: ConexionDB.alojamientos()){
             if(a.getAnfitrion().equals(anfitrion)){
                 contador++;
                 System.out.print(contador+")  ");
@@ -397,9 +293,8 @@ public class Sistema {
     }
     
     private static void reseñasPublicadas(Alojamiento alojamiento){
-            
-        if (!alojamiento.getResenhas().isEmpty()){
-            for(Resenha r:alojamiento.getResenhas()){
+        if (!ConexionDB.resenhas(alojamiento).isEmpty()){
+            for(Resenha r:ConexionDB.resenhas(alojamiento)){
                 System.out.println(r.toString());
             }
         }
@@ -451,18 +346,11 @@ public class Sistema {
             System.out.println("1:Si");
             System.out.println("2:No");
             int opcionE = getOpcion(2);
-
             if(opcionE==1){
-                ConexionDB.deleteAlojamiento(aloj);
-                System.out.println("**SE HA ELIMINADO CORRECTAMENTE**");
+                ConexionDB.deleteAlojamiento(aloj); 
             }
         }
     }
-    
-    
-
-    
-    
     
     
 }

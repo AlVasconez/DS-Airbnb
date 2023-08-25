@@ -5,7 +5,6 @@
 package Usuarios;
 
 import SistemaInterno.Alojamiento;
-import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
 import Util.ConexionDB;
 import java.sql.Connection;
@@ -27,26 +26,24 @@ public class Anfitrion extends Usuario {
     public String toString() {
         return "Anfitrion {" +super.toString() + '}';
     }
-
-    public String getAnfitrion() {
-        return "id: "+usuarioID+" nombre: "+nombre;
-    }
     
 //-------------------------------------------------------------------------------------------------------------    
 
     @Override
     public void menuUsuario() {
-        Connection c = ConexionDB.getConection();
         int opcion;
         do{
             System.out.print( """
                               MENU PRINCIPAL
                         1. Publicar alojamiento
-                        2. Ver mis alojamientos 
-                        3. Cerrar Sesion
+                        2. Ver mis alojamientos
+                        3. Editar mis alojamientos
+                        4. Eliminar mi alojamiento
+                        5. Eliminar una reserva
+                        6. Cerrar Sesion
                     """);
 
-            opcion = Sistema.getOpcion(3);
+            opcion = Sistema.getOpcion(6);
 
             switch(opcion){
                 case 1:
@@ -55,10 +52,22 @@ public class Anfitrion extends Usuario {
                 case 2:
                     Sistema.misAlojamientosA(this);
                     break;
+                case 3:
+                    ConexionDB.modificarAlojamiento(this);
+                    break;
+                case 4:
+                    Sistema.eliminarAlojamiento(this);
+                    break;
+                case 5:
+                    Sistema.eliminarAlojamiento(this);
+                    break;
+                case 6:
+                    System.out.println("***SESION CERRADA CON EXITO***\n");
+                    break;
                     
             }
         }
-        while(opcion!=3);
+        while(opcion!=6);
     }
     
 
@@ -93,9 +102,8 @@ public class Anfitrion extends Usuario {
         
         
         Alojamiento a = new Alojamiento(this,costo,habitaciones,direccion,tarifaAirbnb);
-        a.addUnServicio();
-        a.addUnReglamento();
-        Sistema.alojamientos.add(a);
+        a.addUnServicio(a.getAlojaminetoID());
+        a.addUnReglamento(a.getAlojaminetoID());
         ConexionDB.registrarAlojamiento(a);
         
         System.out.println("\n-----------   SE HA PUBLICADO EXITOSAMENTE SU ALOJAMIENTO ---------\n");
@@ -104,19 +112,5 @@ public class Anfitrion extends Usuario {
             System.out.println("********Ingreso de datos erroneo********");
         }
     }
-public void eliminarReserva(Reserva reserva) {
-    // 
-    for (int i = 0; i < Sistema.reservas.size(); i++) {
-        Reserva r = Sistema.reservas.get(i);
-        if (r.getAlojaminetoID() == reserva.getAlojaminetoID() && r.getReservaID() == reserva.getReservaID()) {
-            Sistema.reservas.remove(i);
-            System.out.println("Reserva eliminada con éxito.");
-            ConexionDB.eliminarReserva(reserva.getReservaID());
-            System.out.println("Reserva eliminada");
-            return; 
-        }
-    }
-
-}
- 
+    
 }

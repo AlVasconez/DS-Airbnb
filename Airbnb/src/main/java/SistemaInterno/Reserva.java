@@ -20,7 +20,7 @@ public class Reserva {
     private String fechaInicio;
     private String fechaSalida;
     private int tiempoEstancia;
-    private static int reservaIDPred = 9011;
+    private static int reservaIDPred = 9013;
     
     
 
