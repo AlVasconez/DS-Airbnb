@@ -36,8 +36,9 @@ CREATE TABLE anfitrion (
 -- drop table if exists alojamiento;
 CREATE TABLE alojamiento (
     alojamiento_id INT PRIMARY KEY,
-    anfitrion_id INT,
     nombre varchar(255) default "Sin nombre",
+    anfitrion_id INT,
+    
     precio_noche DECIMAL(10, 2),
     habitaciones INT,
     ubicacion_id int,
@@ -60,6 +61,7 @@ CREATE TABLE lista_favorito(
 -- drop table if exists servicio_alojamiento;
 CREATE TABLE servicio_alojamiento (
     alojamiento_id INT,
+
     servicio_id INT,
     servicio VARCHAR(100) NOT NULL,
     PRIMARY KEY (alojamiento_id, servicio_id),
@@ -173,7 +175,17 @@ begin
 	end if;
 end//
 DELIMITER ;
+-- sp para insertar alojamiento
 
+DELIMITER //
+
+CREATE PROCEDURE InsertarNuevoAlojamiento( IN nombre_alojamiento VARCHAR(255), IN anfitrion_id INT, IN precio_noche DECIMAL(10, 2), IN habitaciones INT, IN ubicacion_id INT, IN calificacion DECIMAL(3, 2),IN tarifa_airbnb DECIMAL(10, 2))
+BEGIN
+    insert into alojamiento (nombre, anfitrion_id, precio_noche, habitaciones, ubicacion_id, calificacion, tarifa_airbnb)
+    values (nombre_alojamiento, anfitrion_id, precio_noche, habitaciones, ubicacion_id, calificacion, tarifa_airbnb);
+END //
+
+DELIMITER ;
 -- sp para insertar reservas()
 DELIMITER //
 CREATE PROCEDURE insertarReserva(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE, fecha_salida DATE)
@@ -218,6 +230,41 @@ BEGIN
     insert into regla_alojamiento(alojamiento_id, regla)
     values (alojamiento_id, regla);
 END //
+DELIMITER ;
+
+-- sp borrar reserva
+DELIMITER //
+CREATE PROCEDURE BorrarReserva(IN reserva_id INT)
+BEGIN
+    DELETE FROM reserva WHERE reserva_id = reserva_id;
+END //
+DELIMITER ;
+
+-- sp borrar alojamiento
+
+DELIMITER //
+CREATE PROCEDURE BorrarAlojamiento(IN alojamiento_id INT)
+BEGIN
+    DELETE FROM alojamiento WHERE alojamiento_id = alojamiento_id;
+END //
+DELIMITER ;
+
+-- sp borrar regla de alojamiento
+DELIMITER //
+CREATE PROCEDURE BorrarReglaAlojamiento(IN alojamiento_id INT, IN reglamento_id INT)
+BEGIN
+    DELETE FROM regla_alojamiento WHERE alojamiento_id = alojamiento_id AND reglamento_id = reglamento_id;
+END //
+DELIMITER ;
+
+-- sp borrar servicio alojaminto
+DELIMITER //
+
+CREATE PROCEDURE BorrarServicioAlojamiento(IN alojamiento_id INT, IN servicio_id INT)
+BEGIN
+    DELETE FROM servicio_alojamiento WHERE alojamiento_id = alojamiento_id AND servicio_id = servicio_id;
+END //
+
 DELIMITER ;
 
 
@@ -437,6 +484,4 @@ insert into lista_favorito values(1003,23);
 insert into lista_favorito values(1004,27);
 insert into lista_favorito values(1005,25);
 insert into lista_favorito values(1006,24);
-
-
 
