@@ -1,4 +1,4 @@
--- drop database if exists airbnb;
+drop database if exists airbnb;
  create database airbnb;
 use airbnb;
 
@@ -163,6 +163,54 @@ begin
 end//
 DELIMITER ;
 
+-- sp para insertar reservas()
+DELIMITER //
+CREATE PROCEDURE insertarReserva(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE, fecha_salida DATE)
+BEGIN
+    insert into reserva(cliente_id, alojamiento_id, fecha_ingreso, fecha_salida)
+    values (cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+END //
+DELIMITER ;
+
+-- sp para insertar reseñas
+DELIMITER //
+CREATE PROCEDURE InsertarResenia( IN cliente_id INT, IN alojamiento_id INT, IN comentario TEXT, IN calificacion DECIMAL(3, 2) )
+BEGIN
+    insert into resenia(cliente_id, alojamiento_id, comentario, calificacion)
+    values (cliente_id, alojamiento_id, comentario, calificacion);
+END //
+DELIMITER ;
+
+-- sp para insertar pagos
+DELIMITER //
+
+CREATE PROCEDURE InsertarPagoTarjeta( IN cliente_id INT, IN reserva_id INT, IN monto DECIMAL(10, 2), IN fecha DATE, IN numero_tarjeta INT, IN caducidad DATE, IN codigo_postal SMALLINT, IN codigo_cvv SMALLINT)
+BEGIN
+    insert into pago_tarjeta(cliente_id, reserva_id, monto, fecha, numero_tarjeta, caducidad, codigo_postal, codigo_cvv)
+    values (cliente_id, reserva_id, monto, fecha, numero_tarjeta, caducidad, codigo_postal, codigo_cvv);
+END //
+DELIMITER ;
+
+-- sp alojamientos favoritos
+DELIMITER //
+CREATE PROCEDURE InsertarAlojamientoFavorito( IN alojamiento_id INT, IN cliente_id INT)
+BEGIN
+    insert into lista_favorito(alojamiento_id, cliente_id)
+    values (alojamiento_id, cliente_id);
+END //
+DELIMITER ;
+
+-- sp  para crear reglas de alojamiento
+DELIMITER //
+CREATE PROCEDURE InsertarReglaAlojamiento( IN alojamiento_id INT,  IN regla VARCHAR(100))
+BEGIN
+    insert into regla_alojamiento(alojamiento_id, regla)
+    values (alojamiento_id, regla);
+END //
+DELIMITER ;
+
+
+
 call fechaReservada('2023-08-10','2023-08-11',1009,@respuesta);
 select @respuesta;
 
@@ -304,3 +352,6 @@ insert into lista_favorito values(1003,23);
 insert into lista_favorito values(1004,27);
 insert into lista_favorito values(1005,25);
 insert into lista_favorito values(1006,24);
+
+
+
