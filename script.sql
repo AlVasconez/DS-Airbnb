@@ -2,6 +2,13 @@
  create database airbnb;
 use airbnb;
 
+CREATE TABLE ubicacion(
+	ubicacion_id int PRIMARY KEY,
+	pais VARCHAR(50) default "Ecuador",
+	ciudad VARCHAR(50) NOT null
+);
+
+
 -- drop table if exists cliente;
 CREATE TABLE cliente (
     usuario_id INT PRIMARY KEY,
@@ -20,20 +27,24 @@ CREATE TABLE anfitrion (
     contrasenia VARCHAR(100) NOT NULL,
     telefono VARCHAR(15),
     correo VARCHAR(100),
-    direccion_fisica VARCHAR(200),
-    verificador BOOLEAN
+    ubicacion_id int,
+    verificador BOOLEAN,
+	FOREIGN KEY (ubicacion_id) REFERENCES ubicacion(ubicacion_id)
 );
+
 
 -- drop table if exists alojamiento;
 CREATE TABLE alojamiento (
     alojamiento_id INT PRIMARY KEY,
     anfitrion_id INT,
+    nombre varchar(255) default "Sin nombre",
     precio_noche DECIMAL(10, 2),
     habitaciones INT,
-    ubicacion VARCHAR(100),
+    ubicacion_id int,
     calificacion DECIMAL(3, 2),
     tarifa_airbnb DECIMAL(10, 2) default null,
-	FOREIGN KEY (anfitrion_id) REFERENCES anfitrion(usuario_id)
+	FOREIGN KEY (anfitrion_id) REFERENCES anfitrion(usuario_id),
+	FOREIGN KEY (ubicacion_id) REFERENCES ubicacion(ubicacion_id)
 
 );
 
@@ -206,34 +217,106 @@ DELIMITER ;
 
 -- otro trigger --------------------------------------------------------------------------------------------------------------
 
+################################ VISTAS
+
+create view vistaInformacionAlojamientos
+as 
+	select a.nombre as nombre_alojamiento,
+    concat(u.pais, " - ", u.ciudad) as "Ubicacion",
+    a.precio_noche,
+    d.nombre as nombre_anfitrion,
+    COALESCE(AVG(rs.calificacion), 0) AS promedio_resenas
+	FROM anfitrion d
+	JOIN alojamiento a ON a.anfitrion_id = d.usuario_id
+    JOIN ubicacion u on a.ubicacion_id = u.ubicacion_id
+	LEFT JOIN resenia rs ON a.alojamiento_id = rs.alojamiento_id
+    group by a.alojamiento_id;
+    
+create view vistaInformacionReservas
+as
+	select r.reserva_id, a.anfitrion_id, c.usuario_id, a.nombre as nombre_alojamiento, c.nombre as nombre_cliente, fecha_ingreso, fecha_salida, COALESCE(pt.monto, pg.monto, pp.monto) as monto_pagar
+	from reserva r
+	LEFT JOIN pago_paypal pp ON r.reserva_id = pp.reserva_id
+	LEFT JOIN pago_googlepay pg ON r.reserva_id = pg.reserva_id
+	LEFT JOIN pago_tarjeta pt ON r.reserva_id = pt.reserva_id
+	INNER JOIN alojamiento a on a.alojamiento_id = r.alojamiento_id
+	INNER JOIN cliente c on c.usuario_id = r.cliente_id;
+
+create view vistaInformacionFavorito
+as 
+	select a.nombre as nombre_alojamiento,
+			concat(u.pais, " - ", u.ciudad) as "Ubicacion",
+			a.precio_noche,
+			lf.cliente_id,
+			d.nombre as nombre_anfitrion,
+            (CASE
+				WHEN (select count(fr.fecha) 
+					from fechas_reservadas fr
+					where fr.fecha between CURDATE() and DATE_ADD(CURDATE(), INTERVAL 1 DAY) and fr.alojamiento_id=a.alojamiento_id
+					) > 0 then
+						1
+					else 
+                        0
+					end) as reservado
+	from alojamiento a, lista_favorito lf, anfitrion d, ubicacion u
+	where lf.alojamiento_id = a.alojamiento_id and a.anfitrion_id = d.usuario_id and u.ubicacion_id = a.ubicacion_id;
+
+select * from vistaInformacionFavorito;
+
+create view vistaInformacionResenia
+as
+	select 
+		a.alojamiento_id,
+		a.nombre as nombre_alojamiento,
+		c.nombre as nombre_cliente,
+        c.usuario_id,
+        r.comentario,
+        r.calificacion
+	from
+		alojamiento a
+        join resenia r on a.alojamiento_id = r.alojamiento_id
+        join cliente c on c.usuario_id = r.cliente_id;
+
+
 
 ######################################################################################################################################
 
+insert into ubicacion VALUE (1,"Ecuador","Guayaquil");
+insert into ubicacion VALUE (2,"Ecuador","Ayangue");
+insert into ubicacion VALUE (3,"Ecuador","Olon");
+insert into ubicacion VALUE (4,"Ecuador","Quito");
+insert into ubicacion VALUE (5,"Ecuador","Machala");
+insert into ubicacion VALUE (6,"Colombia","Bogota");
+insert into ubicacion VALUE (7,"Peru","Lima");
+insert into ubicacion VALUE (8,"Ecuador","Manta");
+insert into ubicacion VALUE (9,"Ecuador","Cuenca");
+insert into ubicacion VALUE (10,"Ecuador","Ambato");
+
 ###	ANFITRIONES	##############################################################################################
 
-insert into anfitrion values(10,'Luis','luisriv10','0987654321','lrivadeneira@gmail.com','Guasmo norte coop. Galapagos',true);
-insert into anfitrion values(11,'Angel','anto11','0234567890','angeltorres@gmail.com','Guasmo norte coop. 25 de enero',true);
-insert into anfitrion values(12,'Emilia','emigomez12','0357908642','emigomez@gmail.com','Av. 25 de julio y Ernesto Alban',true);
-insert into anfitrion values(13,'Michelle','michip13','0029384576','michelleperalta@gmail.com','Av. Dolores Sucre y Av. 25 de julio',true);
-insert into anfitrion values(14,'Dara','darat14','0281973465','daratriviño@gmail.com','La sopeña',true);
-insert into anfitrion values(15,'Alejandro','alevera15','0784913473','alevera@gmail.com','Floresta 2',true);
-insert into anfitrion values(16,'Jostin','jossozo16','0026574893','jostinsozo@gmail.com','Barrio Centenario',true);
-insert into anfitrion values(17,'Alessandro','alemoreno17','0839465901','sandromoreno@gmail.com','La granada',true);
-insert into anfitrion values(18,'Josseline','jossolis18','0204936173','josssolis@gmail.com','Puerto Azul',true);
-insert into anfitrion values(19,'Camila','camileon19','07354800274','camileon@gmail.com','Barrio Cuba',true);
+insert into anfitrion values(10,'Luis','luisriv10','0987654321','lrivadeneira@gmail.com',1,true);
+insert into anfitrion values(11,'Angel','anto11','0234567890','angeltorres@gmail.com',1,true);
+insert into anfitrion values(12,'Emilia','emigomez12','0357908642','emigomez@gmail.com',1,true);
+insert into anfitrion values(13,'Michelle','michip13','0029384576','michelleperalta@gmail.com',2,true);
+insert into anfitrion values(14,'Dara','darat14','0281973465','daratriviño@gmail.com',2,true);
+insert into anfitrion values(15,'Alejandro','alevera15','0784913473','alevera@gmail.com',2,true);
+insert into anfitrion values(16,'Jostin','jossozo16','0026574893','jostinsozo@gmail.com',2,true);
+insert into anfitrion values(17,'Alessandro','alemoreno17','0839465901','sandromoreno@gmail.com',3,true);
+insert into anfitrion values(18,'Josseline','jossolis18','0204936173','josssolis@gmail.com',4,true);
+insert into anfitrion values(19,'Camila','camileon19','07354800274','camileon@gmail.com',1,true);
 
 ###	ALOJAMIENTOS	##############################################################################################
 
-insert into alojamiento values(1001,10,45,3,'Salinas-Ecuador',4.3,12.5);
-insert into alojamiento values(1002,11,80,4,'Gyayaquil-Ecuador',4.8,31.3);
-insert into alojamiento values(1003,12,70,2,'Manta-Ecuador',4.4,21);
-insert into alojamiento values(1004,13,22,1,'Ayangue-Ecuador',3.8,7.5);
-insert into alojamiento values(1005,14,95,4,'Montañita-Ecuador',4.7,18);
-insert into alojamiento values(1006,15,120,5,'Quito-Ecuador',4.2,41.7);
-insert into alojamiento values(1007,16,15,1,'Duran-Ecuador',2.7,11.5);
-insert into alojamiento values(1008,17,35,2,'Alausi-Ecuador',3.3,16);
-insert into alojamiento values(1009,18,55,3,'Tena-Ecuador',4.2,14.3);
-insert into alojamiento values(1010,19,50,3,'Milagro-Ecuador',3.6,11.6);
+insert into alojamiento values(1001,"TorreAG Puerto Santa Ana",10,45,3,1,4.3,12.5);
+insert into alojamiento values(1002,"HT Olivos",11,80,4,1,4.8,31.3);
+insert into alojamiento values(1003,"Casa Rosada GRANDE",12,70,2,2,4.4,21);
+insert into alojamiento values(1004,"Casa Blanca vista al Mar",13,22,1,3,3.8,7.5);
+insert into alojamiento values(1005,"Casa Rosada PEQUEÑA",14,95,4,2,4.7,18);
+insert into alojamiento values(1006,"Departamento moderno",15,120,5,2,4.2,41.7);
+insert into alojamiento values(1007,"Hacienda Rancho Nuevo",16,15,1,3,2.7,11.5);
+insert into alojamiento values(1008,"Hacienda Prosperidad",17,35,2,5,3.3,16);
+insert into alojamiento values(1009,"PH minimalista",18,55,3,1,4.2,14.3);
+insert into alojamiento values(1010,"Suit moderna",19,50,3,2,3.6,11.6);
 
 ###	cLIENTES	##############################################################################################
 
@@ -274,6 +357,8 @@ insert into regla_alojamiento values(1005,7,'Cualquier pedido de servicio a la h
 insert into regla_alojamiento values(1008,8,'Evitar saltar sobre la cama.');
 insert into regla_alojamiento values(1009,9,'No se puede hacer bulla despues de las 9 de la noche.');
 insert into regla_alojamiento values(1010,10,'El anfitrion no se responsabiliza por perdidas u olvidos materiales.');
+
+
 
 
 ###	SERVICIOS	##############################################################################################
