@@ -1,13 +1,12 @@
 drop database if exists airbnb;
- create database airbnb;
+create database airbnb;
 use airbnb;
 
 CREATE TABLE ubicacion(
-	ubicacion_id int PRIMARY KEY,
+	ubicacion_id int auto_increment primary KEY,
 	pais VARCHAR(50) default "Ecuador",
 	ciudad VARCHAR(50) NOT null
 );
-
 
 -- drop table if exists cliente;
 CREATE TABLE cliente (
@@ -17,7 +16,7 @@ CREATE TABLE cliente (
     telefono VARCHAR(15),
     correo VARCHAR(100),
     direccion_fisica VARCHAR(200),
-    verificador BOOLEAN
+    verificador BOOLEAN default false
 );
 
 -- drop table if exists anfitrion;
@@ -28,24 +27,22 @@ CREATE TABLE anfitrion (
     telefono VARCHAR(15),
     correo VARCHAR(100),
     ubicacion_id int,
-    verificador BOOLEAN,
-	FOREIGN KEY (ubicacion_id) REFERENCES ubicacion(ubicacion_id)
+    verificador BOOLEAN default true,
+    FOREIGN KEY (ubicacion_id) REFERENCES ubicacion(ubicacion_id)
 );
-
 
 -- drop table if exists alojamiento;
 CREATE TABLE alojamiento (
     alojamiento_id INT PRIMARY KEY,
-    nombre varchar(255) default "Sin nombre",
+    nombre varchar(40) default null,
     anfitrion_id INT,
-    
     precio_noche DECIMAL(10, 2),
     habitaciones INT,
     ubicacion_id int,
     calificacion DECIMAL(3, 2),
     tarifa_airbnb DECIMAL(10, 2) default null,
 	FOREIGN KEY (anfitrion_id) REFERENCES anfitrion(usuario_id),
-	FOREIGN KEY (ubicacion_id) REFERENCES ubicacion(ubicacion_id)
+    FOREIGN KEY (ubicacion_id) REFERENCES ubicacion(ubicacion_id)
 
 );
 
@@ -60,26 +57,24 @@ CREATE TABLE lista_favorito(
 
 -- drop table if exists servicio_alojamiento;
 CREATE TABLE servicio_alojamiento (
-    alojamiento_id INT,
-
-    servicio_id INT,
+    alojamiento_id INT ,
+    servicio_id INT  auto_increment PRIMARY KEY,
     servicio VARCHAR(100) NOT NULL,
-    PRIMARY KEY (alojamiento_id, servicio_id),
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
 );
 
 -- drop table if exists regla_alojamiento;
 CREATE TABLE regla_alojamiento (
     alojamiento_id INT,
-    reglamento_id INT,
+    reglamento_id INT auto_increment,
     regla VARCHAR(100) NOT NULL,
-    PRIMARY KEY (alojamiento_id, reglamento_id),
+    PRIMARY KEY ( reglamento_id),
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
 );
 
--- drop table if exists mensaje;
+ drop table if exists mensaje;
 CREATE TABLE mensaje (
-    mensaje_id INT PRIMARY KEY,
+    mensaje_id INT auto_increment PRIMARY KEY,
     mensaje VARCHAR(200),
     anfitrion_id INT,
     cliente_id INT,
@@ -98,42 +93,36 @@ CREATE TABLE reserva (
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
 );
 
--- drop table if exists pago_tarjeta;
+ drop table if exists pago_tarjeta;
 CREATE TABLE pago_tarjeta (
-    pago_id INT PRIMARY KEY,
-    cliente_id INT,
+    pago_id INT auto_increment PRIMARY KEY,
     reserva_id INT,
-    monto DECIMAL(10, 2),
+    monto DECIMAL(10, 2) default null,
     fecha DATE,
     numero_tarjeta INT,
     caducidad DATE,
-    codigo_postal smallint,
+    codigo_postal int,
     codigo_cvv smallint,
-    FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
     FOREIGN KEY (reserva_id) REFERENCES reserva(reserva_id)
 );
 
--- drop table if exists pago_paypal;
+drop table if exists pago_paypal;
 CREATE TABLE pago_paypal (
-    pago_id INT PRIMARY KEY,
-    cliente_id INT,
+    pago_id INT auto_increment PRIMARY KEY,
     reserva_id INT,
-    monto DECIMAL(10, 2),
+    monto DECIMAL(10, 2) default null,
     fecha DATE,
-    numero_cuenta CHAR(10),
-    FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
+    numero_cuenta int,
     FOREIGN KEY (reserva_id) REFERENCES reserva(reserva_id)
 );
 
 -- drop table if exists pago_googlepay;
 CREATE TABLE pago_googlepay (
-    pago_id INT PRIMARY KEY,
-    cliente_id INT,
+    pago_id INT auto_increment PRIMARY KEY,
     reserva_id INT,
-    monto DECIMAL(10, 2),
+    monto DECIMAL(10, 2) default null,
     fecha DATE,
-    numero_cuenta CHAR(10),
-    FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
+    numero_cuenta int,
     FOREIGN KEY (reserva_id) REFERENCES reserva(reserva_id)
 );
 
@@ -157,7 +146,6 @@ CREATE TABLE resenia (
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
 );
 
-##############################################################################################################
 ###	PROCEDURES	##############################################################################################
 
 -- sp para comprobar si hay reservas entre las fechas realizadas por el cliente
@@ -175,44 +163,17 @@ begin
 	end if;
 end//
 DELIMITER ;
--- sp para insertar alojamiento
 
-DELIMITER //
-
-CREATE PROCEDURE InsertarNuevoAlojamiento( IN nombre_alojamiento VARCHAR(255), IN anfitrion_id INT, IN precio_noche DECIMAL(10, 2), IN habitaciones INT, IN ubicacion_id INT, IN calificacion DECIMAL(3, 2),IN tarifa_airbnb DECIMAL(10, 2))
-BEGIN
-    insert into alojamiento (nombre, anfitrion_id, precio_noche, habitaciones, ubicacion_id, calificacion, tarifa_airbnb)
-    values (nombre_alojamiento, anfitrion_id, precio_noche, habitaciones, ubicacion_id, calificacion, tarifa_airbnb);
-END //
-
-DELIMITER ;
--- sp para insertar reservas()
-DELIMITER //
-CREATE PROCEDURE insertarReserva(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE, fecha_salida DATE)
-BEGIN
-    insert into reserva(cliente_id, alojamiento_id, fecha_ingreso, fecha_salida)
-    values (cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
-END //
-DELIMITER ;
 
 -- sp para insertar reseñas
 DELIMITER //
-CREATE PROCEDURE InsertarResenia( IN cliente_id INT, IN alojamiento_id INT, IN comentario TEXT, IN calificacion DECIMAL(3, 2) )
+CREATE PROCEDURE InsertarResenia(IN cliente_id INT, IN alojamiento_id INT, IN comentario TEXT, IN calificacion DECIMAL(3, 2) )
 BEGIN
     insert into resenia(cliente_id, alojamiento_id, comentario, calificacion)
     values (cliente_id, alojamiento_id, comentario, calificacion);
 END //
 DELIMITER ;
 
--- sp para insertar pagos
-DELIMITER //
-
-CREATE PROCEDURE InsertarPagoTarjeta( IN cliente_id INT, IN reserva_id INT, IN monto DECIMAL(10, 2), IN fecha DATE, IN numero_tarjeta INT, IN caducidad DATE, IN codigo_postal SMALLINT, IN codigo_cvv SMALLINT)
-BEGIN
-    insert into pago_tarjeta(cliente_id, reserva_id, monto, fecha, numero_tarjeta, caducidad, codigo_postal, codigo_cvv)
-    values (cliente_id, reserva_id, monto, fecha, numero_tarjeta, caducidad, codigo_postal, codigo_cvv);
-END //
-DELIMITER ;
 
 -- sp alojamientos favoritos
 DELIMITER //
@@ -225,12 +186,123 @@ DELIMITER ;
 
 -- sp  para crear reglas de alojamiento
 DELIMITER //
-CREATE PROCEDURE InsertarReglaAlojamiento( IN alojamiento_id INT,  IN regla VARCHAR(100))
+CREATE PROCEDURE InsertarReglaA(in alojamiento_id int, IN regla VARCHAR(100))
 BEGIN
     insert into regla_alojamiento(alojamiento_id, regla)
     values (alojamiento_id, regla);
 END //
 DELIMITER ;
+
+drop procedure if exists InsertarAlojamiento;
+-- sp  para insertar Alojamiento
+DELIMITER //
+CREATE PROCEDURE InsertarAlojamiento(in anfitrion int ,in precio decimal(10,2), in habitaciones int, in pais varchar(100),in ciudad varchar(100), in tarifa_A decimal(10,2), in nombre varchar(40))
+BEGIN
+	insert into ubicacion values (null,pais,ciudad);
+    set @ubicacion_ind= (select count(alojamiento_id) from ubicacion)+1;
+	set @ind= (select count(alojamiento_id) from alojamiento)+1001;
+    insert into alojamiento values((select @ind),nombre,anfitrion,precio,habitaciones,(select @ubicacion_ind),0,tarifa_A);
+END //
+DELIMITER ;
+
+-- sp  para insertar Servicios
+DELIMITER //
+CREATE PROCEDURE InsertarServicioA(in alojamiento_id INT, in servicio varchar(100))
+BEGIN
+    insert into servicio_alojamiento values(alojamiento_id,null,servicio);
+END //
+DELIMITER ;
+
+-- sp insertar mensajes
+DELIMITER //
+CREATE PROCEDURE InsertarMensaje(in mensaje varchar(200),in anfitrion_id int, in cliente_id int)
+BEGIN
+    insert into servicio_alojamiento values(alojamiento_id,anfitrion_id,cliente_id);
+END //
+DELIMITER ;
+
+-- sp insertar Pago ----------------------------------------
+
+ drop procedure if exists InsertarPagoTarjeta;
+DELIMITER //
+create procedure  InsertarPagoTarjeta(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE,in fecha_salida DATE,IN numero_tarjeta INT, IN caducidad DATE, IN codigo_postal int, IN codigo_cvv SMALLINT)
+begin
+	set @indr= (select count(reserva_id) from reserva)+9001;
+	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+    
+    set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
+    set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
+    set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
+    set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
+ 
+    insert into pago_tarjeta values(null,@indr,(select @monto),fecha_ingreso,numero_tarjeta,caducidad,codigo_postal,codigo_cvv);
+end //
+DELIMITER ; 
+
+
+ drop procedure if exists InsertarPagoGPay;
+DELIMITER //
+create procedure  InsertarPagoGPay(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE,in fecha_salida DATE,IN numeroCuenta int)
+begin
+	set @indr= (select count(reserva_id) from reserva)+9001;
+	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+    
+    set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
+    set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
+    set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
+    set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
+ 
+    insert into pago_googlepay values(null,@indr,(select @monto),fecha_ingreso,numeroCuenta);
+end //
+DELIMITER ; 
+
+
+ drop procedure if exists InsertarPagoPaypal;
+DELIMITER //
+create procedure  InsertarPagoPaypal(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE,in fecha_salida DATE,IN numeroCuenta int)
+begin
+	set @indr= (select count(reserva_id) from reserva)+9001;
+	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+    
+    set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
+    set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
+    set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
+    set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
+ 
+    insert into pago_paypal values(null,@indr,(select @monto),fecha_ingreso,numeroCuenta);
+end //
+DELIMITER ;  
+
+################################ 	SPS UPDATES ALOJAMIENTO		 ###########################################################################
+
+DELIMITER //
+create procedure updateAlojamientoNombre(in aloj_id int,in cambio varchar(30))
+begin
+	UPDATE alojamiento
+    set nombre = cambio
+    where alojamiento_id=aloj_id;
+end //
+DELIMITER ;
+
+DELIMITER //
+create procedure updateAlojamientoCosto(in aloj_id int, in cambio double)
+begin
+	UPDATE alojamiento
+    set costo_noche = cambio
+    where alojamiento_id=aloj_id;
+end //
+DELIMITER ;
+
+DELIMITER //
+create procedure updateAlojamientoHabitacion(in aloj_id int, in cambio int)
+begin
+	UPDATE alojamiento
+    set habitaciones = cambio
+    where alojamiento_id=aloj_id;
+end //
+DELIMITER ;
+
+#################	DELETE SPS	###############################################################################
 
 -- sp borrar reserva
 DELIMITER //
@@ -241,13 +313,14 @@ END //
 DELIMITER ;
 
 -- sp borrar alojamiento
-
+drop procedure if exists BorrarAlojamiento;
 DELIMITER //
 CREATE PROCEDURE BorrarAlojamiento(IN alojamiento_id INT)
 BEGIN
-    DELETE FROM alojamiento WHERE alojamiento_id = alojamiento_id;
+    DELETE FROM alojamiento a WHERE a.alojamiento_id = alojamiento_id;
 END //
 DELIMITER ;
+
 
 -- sp borrar regla de alojamiento
 DELIMITER //
@@ -268,14 +341,9 @@ END //
 DELIMITER ;
 
 
-
-call fechaReservada('2023-08-10','2023-08-11',1009,@respuesta);
-select @respuesta;
-
--- otro sp---------------------------------------------------------------------------
-
 ##############################################################################################################
 ###	TRIGGERS	##############################################################################################
+
 
 -- crea las fechas reservadas de forma automatica una vez se crea una reserva ----------------------------------------
  drop trigger if exists crearFechaReservada;
@@ -310,9 +378,7 @@ begin
 end//
 DELIMITER ;
 
--- otro trigger --------------------------------------------------------------------------------------------------------------
-
-################################ VISTAS
+################################ VISTAS	################################################################################################
 
 create view vistaInformacionAlojamientos
 as 
@@ -374,7 +440,7 @@ as
 
 
 
-######################################################################################################################################
+###################	UBICACION	#############################################################################################
 
 insert into ubicacion VALUE (1,"Ecuador","Guayaquil");
 insert into ubicacion VALUE (2,"Ecuador","Ayangue");
@@ -386,6 +452,8 @@ insert into ubicacion VALUE (7,"Peru","Lima");
 insert into ubicacion VALUE (8,"Ecuador","Manta");
 insert into ubicacion VALUE (9,"Ecuador","Cuenca");
 insert into ubicacion VALUE (10,"Ecuador","Ambato");
+
+
 
 ###	ANFITRIONES	##############################################################################################
 
@@ -401,7 +469,7 @@ insert into anfitrion values(18,'Josseline','jossolis18','0204936173','josssolis
 insert into anfitrion values(19,'Camila','camileon19','07354800274','camileon@gmail.com',1,true);
 
 ###	ALOJAMIENTOS	##############################################################################################
-
+vistainformacionfavorito
 insert into alojamiento values(1001,"TorreAG Puerto Santa Ana",10,45,3,1,4.3,12.5);
 insert into alojamiento values(1002,"HT Olivos",11,80,4,1,4.8,31.3);
 insert into alojamiento values(1003,"Casa Rosada GRANDE",12,70,2,2,4.4,21);
@@ -454,20 +522,18 @@ insert into regla_alojamiento values(1009,9,'No se puede hacer bulla despues de 
 insert into regla_alojamiento values(1010,10,'El anfitrion no se responsabiliza por perdidas u olvidos materiales.');
 
 
-
-
 ###	SERVICIOS	##############################################################################################
 
-insert into servicio_alojamiento values(1001,1,'Servicio a la habitacion');
-insert into servicio_alojamiento values(1005,2,'Servicio de seguridad.');
-insert into servicio_alojamiento values(1003,3,'Minibar con bebidas');
-insert into servicio_alojamiento values(1007,4,'Salon para fiestas.');
-insert into servicio_alojamiento values(1005,5,'Servicio a la habitacion.');
-insert into servicio_alojamiento values(1006,6,'Servicio de limpieza diario.');
-insert into servicio_alojamiento values(1004,7,'bebidas ilimitadas del minibar');
-insert into servicio_alojamiento values(1008,8,'Piscina compartida.');
-insert into servicio_alojamiento values(1009,9,'Playa privada.');
-insert into servicio_alojamiento values(1010,10,'Zona de acampar privado.');
+insert into servicio_alojamiento values(1001,null,'Servicio a la habitacion');
+insert into servicio_alojamiento values(1005,null,'Servicio de seguridad.');
+insert into servicio_alojamiento values(1003,null,'Minibar con bebidas');
+insert into servicio_alojamiento values(1007,null,'Salon para fiestas.');
+insert into servicio_alojamiento values(1005,null,'Servicio a la habitacion.');
+insert into servicio_alojamiento values(1006,null,'Servicio de limpieza diario.');
+insert into servicio_alojamiento values(1004,null,'bebidas ilimitadas del minibar');
+insert into servicio_alojamiento values(1008,null,'Piscina compartida.');
+insert into servicio_alojamiento values(1009,null,'Playa privada.');
+insert into servicio_alojamiento values(1010,null,'Zona de acampar privado.');
 
 ###	RESEÑAS	##############################################################################################
 
@@ -484,4 +550,3 @@ insert into lista_favorito values(1003,23);
 insert into lista_favorito values(1004,27);
 insert into lista_favorito values(1005,25);
 insert into lista_favorito values(1006,24);
-
