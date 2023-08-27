@@ -83,7 +83,10 @@ public class Anfitrion extends Usuario {
         String pais = sc.nextLine();
         
         System.out.print("-Ciudad: ");
-        String ciudad = sc.nextLine();  
+        String ciudad = sc.nextLine();
+        
+        System.out.print("-Nombre del Alojamiento: ");
+        String nombreA = sc.nextLine(); 
         
         System.out.print("-Costo: ");
         double costo = Double.parseDouble(sc.nextLine());
@@ -101,15 +104,26 @@ public class Anfitrion extends Usuario {
         }while(tarifaAirbnb>(costo/2));
         
         
-        Alojamiento a = new Alojamiento(this,costo,habitaciones,direccion,tarifaAirbnb);
+        Alojamiento a = new Alojamiento(this,costo,habitaciones,direccion,tarifaAirbnb, nombreA);
+        ConexionDB.registrarAlojamiento(a);
         a.addUnServicio(a.getAlojaminetoID());
         a.addUnReglamento(a.getAlojaminetoID());
-        ConexionDB.registrarAlojamiento(a);
+        
         
         System.out.println("\n-----------   SE HA PUBLICADO EXITOSAMENTE SU ALOJAMIENTO ---------\n");
         }
         catch(Exception e){
             System.out.println("********Ingreso de datos erroneo********");
+        }
+    }
+    
+    public void enviarMensaje(Cliente cliente){
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Escriba el mensaje que le quiera mandar a "+cliente.getNombre());
+        String mensaje = sc.nextLine();
+        if(!mensaje.isEmpty() && !mensaje.isBlank()){
+            ConexionDB.registrarMensaje(mensaje, this.usuarioID, cliente.usuarioID);
+            System.out.println("***Mensaje Enviado***\n");
         }
     }
     

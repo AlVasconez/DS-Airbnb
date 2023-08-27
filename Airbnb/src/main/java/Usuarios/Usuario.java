@@ -37,12 +37,7 @@ public abstract class Usuario {
         this.usuarioID = usuarioID;
         this.contrasenia = contrasenia;
     }
-    
-    public void enviarMensaje(Usuario receptor){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Mensaje para "+receptor.nombre+":");
-        Mensaje m = new Mensaje(sc.nextLine(),this,receptor);
-    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -78,19 +73,6 @@ public abstract class Usuario {
         return "" + "usuarioID=" + usuarioID + ", contrasenha=" + contrasenia + ", nombre=" + nombre + ", correo=" + correo + ", telefono=" + telefono + ", direccionFisica=" + direccionFisica + ", verificacion=" + verificacion + ')';
     }
     
-    
-    
-   public String imprimir(){
-        if (this instanceof Cliente){
-            Cliente c = (Cliente)this;
-            return c.toString();
-        }
-        if (this instanceof Anfitrion){
-            Anfitrion c = (Anfitrion)this;
-            return c.toString();
-        }
-        return "";
-    }
-    
+   
    
 }

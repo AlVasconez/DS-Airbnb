@@ -14,9 +14,18 @@ public class Paypal extends Pago{
     
     protected int numeroCuenta;
 
-    public Paypal(int numeroCuenta, String pagoID, String usuarioID, String reservaID, double monto, Date fecha) {
-        super(pagoID, usuarioID, reservaID, monto, fecha);
+    public Paypal(int numeroCuenta, int pagoID, String usuarioID, String reservaID, double monto, String fecha) {
+        super(pagoID, reservaID, monto, fecha);
         this.numeroCuenta = numeroCuenta;
+    }
+    
+    public Paypal(int numeroCuenta) {
+        super();
+        this.numeroCuenta = numeroCuenta;
+    }
+
+    public int getNumeroCuenta() {
+        return numeroCuenta;
     }
     
     

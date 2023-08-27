@@ -4,6 +4,7 @@
  */
 package SistemaInterno;
 
+import MetodosPago.*;
 import Usuarios.*;
 import java.util.ArrayList;
 import java.util.Scanner;
@@ -56,6 +57,9 @@ public class Sistema {
         int anio = 365*(Integer.parseInt(fechaS[0])-Integer.parseInt(fechaI[0]));
         int mes = 30*(Integer.parseInt(fechaS[1])-Integer.parseInt(fechaI[1]));
         int dia = 1*(Integer.parseInt(fechaS[2])-Integer.parseInt(fechaI[2]));
+        if((anio+mes+dia)==0){
+            return 1;
+        }
         return anio+mes+dia;
     }
     
@@ -214,11 +218,102 @@ public class Sistema {
         String fInicio = "2023-"+sc.nextLine();
         System.out.print("Indique hasta que fecha desea reservar EX:(MES-DIA -> 08-25): ");
         String fFinal = "2023-"+sc.nextLine();
+        //DESPUES HAY QUE HACER QUE EL MONTO SE TRAIGA DESDE LA BD (ESTE NO SE QUEDA SOLO ES PARA TENER UNA IDEA)
+        double montoT = ((diasEstancia(fInicio,fFinal)*aloj.getPrecio())+aloj.getTarifaAirbnb());
+        Reserva r = new Reserva(cliente.getUsuarioID(),aloj.getAlojaminetoID(),fInicio,fFinal);
+        System.out.println("|---------------------------------|");
+        System.out.println("|          RESUMEN RESERVA        |");
+        System.out.println("| Alojamiento: "+aloj.getNombre()+"|");
+        System.out.println("| Reservado desde: "+fInicio+" |");
+        System.out.println("| Reservado hasta: "+fFinal+" |");
+        System.out.println("| Monto total: "+montoT+"     |");
+        System.out.println("|---------------------------------|");
+        pagarReserva(r);
         
         
-        Reserva reserva = new Reserva(cliente.getUsuarioID(),aloj.getAlojaminetoID(),fInicio,fFinal);
-        ConexionDB.registrarReserva(reserva);
         
+        
+    }
+    
+//-------------------   METODOS DE PAGO -------------------------------------------------------
+
+    public static void pagarReserva(Reserva r){
+        System.out.println("""
+                           Escoja de que forma desea pagar:
+                           1. Tarjeta
+                           2. Paypal
+                           3. Google Pay
+                           4. Salir
+                           """);
+        int opcion = getOpcion(4);
+        switch(opcion){
+            case 1:
+                pagarConTarjeta(r);
+                break;
+            case 2:
+                pagarConPaypal(r);
+                break;
+            case 3:
+                pagarConGooglePay(r);
+                break;
+            case 4:
+                break;
+        }
+        
+    }
+    
+    private static void pagarConTarjeta(Reserva r){
+        System.out.print("Ingrese numero de tarjeta: ");
+        int numTarjeta = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Ingrese fecha de caducidad EX:(mes-año => 2025-05-12): ");
+        String caducidad = sc.nextLine();
+        System.out.print("Ingrese codigo CVV: ");
+        int cvv = sc.nextInt();
+        sc.nextLine();
+        System.out.print("Ingrese su codigo postal: ");
+        int cPostal = sc.nextInt();
+        sc.nextLine();
+
+        Tarjeta t = new Tarjeta(numTarjeta,caducidad,cPostal,cvv);
+        System.out.print("""
+                         1. Confirmar Pago
+                         2. Cancelar
+                         """);
+        int opcion = getOpcion(2);
+        if (opcion==1){
+            ConexionDB.registrarPagoTarjeta(r, t);
+        }
+    }
+    
+    private static void pagarConPaypal(Reserva r){
+        System.out.print("Ingrese numero de cuenta: ");
+        int numCuentaP = sc.nextInt();
+        sc.nextLine();
+        Paypal p = new Paypal(numCuentaP);
+        System.out.print("""
+                         1. Confirmar Pago
+                         2. Cancelar
+                         """);
+        int opcion = getOpcion(2);
+        if (opcion==1){
+            ConexionDB.registrarPagoPaypal(r, p);
+        }
+    }
+    
+    private static void pagarConGooglePay(Reserva r){
+        System.out.print("Ingrese numero de cuenta: ");
+        int numCuentaGP = sc.nextInt();
+        sc.nextLine();
+        GooglePay gp = new GooglePay(numCuentaGP);
+        System.out.print("""
+                         1. Confirmar Pago
+                         2. Cancelar
+                         """);
+        int opcion = getOpcion(2);
+        if (opcion==1){
+            ConexionDB.registrarPagoGPay(r, gp);
+        }
     }
     
 
@@ -352,5 +447,7 @@ public class Sistema {
         }
     }
     
+//---------------------------------------------------------------------------------------------
+
     
 }

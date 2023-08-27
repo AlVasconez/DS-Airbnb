@@ -4,6 +4,7 @@
  */
 package Util;
 
+import MetodosPago.*;
 import SistemaInterno.Alojamiento;
 import SistemaInterno.Resenha;
 import SistemaInterno.Reserva;
@@ -34,9 +35,6 @@ public class ConexionDB {
     private String ip = "localhost";
     private String puerto = "3306";
     private String cadenaCon = String.format("jdbc:mysql://%s/%s",ip,db);
-    private static int idServicio = 10;
-    private static int idRegla = 10;
-    private static int idFavorito = 10;
     
     private ConexionDB(){
         try{
@@ -200,17 +198,12 @@ public class ConexionDB {
                 String ubicacion = rs.getString("ubicacion");
                 double calificacion = rs.getDouble("calificacion");
                 double tarifaAirbnb = rs.getDouble("tarifa_airbnb");
-                
-//                ArrayList <String> servicios = servicios(alojamientoId);
-//                ArrayList <String> reglamentos = reglamento(alojamientoId);
-                
+                String nombreA = rs.getString("nombre_alojamiento");
+              
                 for (Usuario u: usuarios){
                     if (u.getUsuarioID()==(anfitrionId)){  
                         Anfitrion anfitrion = (Anfitrion)u;
-                        Alojamiento a = new Alojamiento(alojamientoId,anfitrion,precioNoche,habitaciones,ubicacion,tarifaAirbnb);                      
-                        //Agrega los servicios,reglas y calificacion del alojamiento
-//                        a.setServicios(servicios);
-//                        a.setReglamento(reglamentos);
+                        Alojamiento a = new Alojamiento(alojamientoId,anfitrion,precioNoche,habitaciones,ubicacion,tarifaAirbnb,nombreA);                      
                         a.cambiarCalificaion(calificacion);
                         alojamientos.add(a);
                         resenhas(a);
@@ -331,17 +324,53 @@ public class ConexionDB {
 //----------------------------------------------------------------------------------------------------------
 //-----------------     METODOS PARA REGISTRAR(INSERT) DATOS EN LA BD       --------------------------------
 //----------------------------------------------------------------------------------------------------------
-    
-    public static void registrarReserva(Reserva r) {
-        Connection c = ConexionDB.getConection();
 
+    public static void registrarPagoTarjeta(Reserva r,Tarjeta t) {
+        Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO reserva VALUES (?,?,?,?,?)");
-            stmt.setString(1, ""+r.getReservaID());
-            stmt.setString(2, ""+r.getClienteID());
-            stmt.setString(3, ""+r.getAlojaminetoID());
-            stmt.setString(4, r.getFechaInicio());
-            stmt.setString(5, r.getFechaSalida());
+            PreparedStatement stmt = c.prepareStatement("call InsertarPagoTarjeta(?,?,?,?,?,?,?,?)");
+            stmt.setString(1, ""+r.getClienteID());
+            stmt.setString(2, ""+r.getAlojaminetoID());
+            stmt.setString(3, r.getFechaInicio());
+            stmt.setString(4, r.getFechaSalida());
+            stmt.setString(5, ""+t.getNumeroTarjeta());
+            stmt.setString(6, ""+t.getCaducidad());
+            stmt.setString(7, ""+t.getCodigoPostal());
+            stmt.setString(8, ""+t.getCodigocvv());
+            stmt.executeUpdate();
+            System.out.println("**SE HA REALIZADO SU RESERVA CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void registrarPagoPaypal(Reserva r,Paypal p) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("call InsertarPagoPaypal(?,?,?,?,?)");
+            stmt.setString(1, ""+r.getClienteID());
+            stmt.setString(2, ""+r.getAlojaminetoID());
+            stmt.setString(3, r.getFechaInicio());
+            stmt.setString(4, r.getFechaSalida());
+            stmt.setString(5, ""+p.getNumeroCuenta());
+            stmt.executeUpdate();
+            System.out.println("**SE HA REALIZADO SU RESERVA CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void registrarPagoGPay(Reserva r,GooglePay gp) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("call InsertarPagoGPay(?,?,?,?,?)");
+            stmt.setString(1, ""+r.getClienteID());
+            stmt.setString(2, ""+r.getAlojaminetoID());
+            stmt.setString(3, r.getFechaInicio());
+            stmt.setString(4, r.getFechaSalida());
+            stmt.setString(5, ""+gp.getNumeroCuenta());
             stmt.executeUpdate();
             System.out.println("**SE HA REALIZADO SU RESERVA CORRECTAMENTE**");
 
@@ -354,13 +383,13 @@ public class ConexionDB {
         Connection c = ConexionDB.getConection();
 
         try {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO alojamiento VALUES (?,?,?,?,?,?)");
-            stmt.setString(1, ""+a.getAlojaminetoID());
-            stmt.setString(2, ""+a.getAnfitrion().getUsuarioID());
+            PreparedStatement stmt = c.prepareStatement("call InsertarAlojamiento(?,?,?,?,?,?)");
+            stmt.setString(1, ""+a.getAnfitrion().getUsuarioID());
+            stmt.setString(2, ""+a.getPrecio());
             stmt.setString(3, ""+a.getHabitaciones());
-            stmt.setString(4, a.getUbicacion());
-            stmt.setString(5, ""+a.getCalificacion());
+            stmt.setString(4, ""+a.getUbicacion()+"");
             stmt.setString(5, ""+a.getTarifaAirbnb());
+            stmt.setString(6, ""+a.getNombre()+"");
             stmt.executeUpdate();
 
         } catch (SQLException e) {
@@ -371,13 +400,10 @@ public class ConexionDB {
     public static void registrarServicio(int aloj_id,String servicio) {
         Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO servicio_alojamiento VALUES (?,?,?)");
+            PreparedStatement stmt = c.prepareStatement("call InsertarServicioA (?,?)");
             stmt.setString(1, ""+aloj_id);
-            stmt.setString(2, ""+idServicio);
-            stmt.setString(3, servicio);
+            stmt.setString(2, ""+servicio+"");
             stmt.executeUpdate();
-            idServicio++;
-            System.out.println("** REGISTRADO CORRECTAMENTE**");
 
         } catch (SQLException e) {
             System.out.println(e.getMessage());
@@ -387,14 +413,10 @@ public class ConexionDB {
     public static void registrarRegla(int aloj_id,String regla) {
         Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO regla_alojamiento VALUES (?,?,?)");
+            PreparedStatement stmt = c.prepareStatement("call InsertarReglaA(?,?)");
             stmt.setString(1, ""+aloj_id);
-            stmt.setString(2, ""+idRegla);
-            stmt.setString(3, regla);
+            stmt.setString(2, ""+regla+"");
             stmt.executeUpdate();
-            idRegla++;
-            System.out.println("** REGISTRADO CORRECTAMENTE**");
-
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
@@ -403,7 +425,7 @@ public class ConexionDB {
     public static void registrarResenha(int cliente_id,int aloj_id,String comentario,double calificacion) {
         Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO resenia VALUES (?,?,?,?)");
+            PreparedStatement stmt = c.prepareStatement("call InsertarResenia(?,?,?,?)");
             stmt.setString(1, ""+cliente_id);
             stmt.setString(2, ""+aloj_id);
             stmt.setString(3, comentario);
@@ -419,9 +441,24 @@ public class ConexionDB {
     public static void registrarFavorito(int aloj_id,int cliente_id) {
         Connection c = ConexionDB.getConection();
         try {
-            PreparedStatement stmt = c.prepareStatement("INSERT INTO lista_favorito VALUES (?,?)");
+            PreparedStatement stmt = c.prepareStatement("call InsertarAlojamientoFavorito(?,?)");
             stmt.setString(1, ""+aloj_id);
             stmt.setString(2, ""+cliente_id);
+            stmt.executeUpdate();
+            System.out.println("** REGISTRADO CORRECTAMENTE**");
+
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+    
+    public static void registrarMensaje(String mensaje, int anfitrion_id,int cliente_id) {
+        Connection c = ConexionDB.getConection();
+        try {
+            PreparedStatement stmt = c.prepareStatement("call InsertarMensaje(?,?,?)");
+            stmt.setString(1, ""+mensaje);
+            stmt.setString(2, ""+anfitrion_id);
+            stmt.setString(3, ""+cliente_id);
             stmt.executeUpdate();
             System.out.println("** REGISTRADO CORRECTAMENTE**");
 
@@ -472,40 +509,55 @@ public class ConexionDB {
                                1. cantidad de habitaciones
                                2. precio x noche
                                3. ubicacion del alojamiento
-                               4. Volver
+                               4. nombre del alojamiento
+                               5. Volver
                                """);
-            int opcionE = getOpcion(4);
-            if(opcionE!=4){
-                String tipo=null;
-                String cambio=null;             
+            int opcionE = getOpcion(5);
+            if(opcionE!=5){
+                String cambio;
+                PreparedStatement stmt;
                 try {
                     switch(opcionE){
                         case 1:
-                            tipo = "habitaciones";
                             System.out.println("Numero de habitaciones: ");
                             cambio = ""+sc.nextInt();
                             sc.nextLine();
-                                break;
+                            stmt = c.prepareStatement("call updateAlojamientoHabitacion(?,?)");
+                            stmt.setString(1, ""+aloj.getAlojaminetoID());
+                            stmt.setString(2, ""+cambio);
+                            stmt.executeUpdate();
+                            break;
                         case 2:
-                            tipo = "precio_noche";
                             System.out.println("Nuevo precio: ");
                             cambio = ""+sc.nextDouble();
                             sc.nextLine();
+                            stmt = c.prepareStatement("call updateAlojamientoCosto(?,?)");
+                            stmt.setString(1, ""+aloj.getAlojaminetoID());
+                            stmt.setString(2, ""+cambio);
+                            stmt.executeUpdate();
                             break;
                         case 3:
-                            tipo = "ubicacion";
                             System.out.println("Nueva ubicacion: ");
-                            cambio = "'"+sc.nextLine()+"'";
+                            cambio = ""+sc.nextLine()+"";
+                            stmt = c.prepareStatement("call updateAlojamientoUbi(?,?)");
+                            stmt.setString(1, ""+aloj.getAlojaminetoID());
+                            stmt.setString(2, ""+cambio);
+                            stmt.executeUpdate();
+                            break;
+                        case 4:
+                            System.out.println("Nuevo nombre: ");
+                            cambio = ""+sc.nextLine()+"";
+                            stmt = c.prepareStatement("call updateAlojamientoNombre(?,?)");
+                            stmt.setString(1, ""+aloj.getAlojaminetoID());
+                            stmt.setString(2, ""+cambio);
+                            stmt.executeUpdate();
                             break;
                     }
+                }catch (SQLException e) {
+                System.out.println(e.getMessage());
+                }  
+                  
 
-                        PreparedStatement stmt = c.prepareStatement("UPDATE alojamiento SET "+tipo+" = "+cambio+" WHERE alojamiento_id="+aloj.getAlojaminetoID());
-                        stmt.executeUpdate();
-                        System.out.println("**SE HA CAMBIADO CORRECTAMENTE**");
-                } catch (SQLException e) {
-                    System.out.print(e.getMessage());
-                }
-                
                 System.out.println("Desea realizar otro cambio a este alojamiento?");
                 System.out.println("1. Si\n2. No");
                 int opcion2 = getOpcion(2);

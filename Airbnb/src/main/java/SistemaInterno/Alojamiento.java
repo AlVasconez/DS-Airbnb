@@ -16,7 +16,6 @@ import java.util.Arrays;
  */
 public class Alojamiento {
     
-    private static int numAlojamiento =1011;
     private int alojaminetoID;
     private Anfitrion anfitrion;
     private double precio;
@@ -24,22 +23,23 @@ public class Alojamiento {
     private String ubicacion;
     private double calificacion;
     private double tarifaAirbnb;
+    private String nombre;
     private ArrayList<Double> calificaciones= new ArrayList<>();
 
     //Contructor que se usa cuando por consola se crea un alojamiento
-    public Alojamiento(Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb) {
-        this.alojaminetoID = numAlojamiento;
+    public Alojamiento(Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb,String nombre) {
+        this.alojaminetoID = 0;
         this.anfitrion = anfitrion;
         this.precio = precio;
         this.habitaciones = habitaciones;
         this.ubicacion = ubicacion;
         this.calificacion = 0;
         this.tarifaAirbnb = tarifaAirbnb;
-        numAlojamiento++;
+        this.nombre=nombre;
     }
     
     //Constructor usado al recibir datos de la BD
-    public Alojamiento(int alojaminetoID,Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb) {
+    public Alojamiento(int alojaminetoID,Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb,String nombre) {
         this.alojaminetoID = alojaminetoID;
         this.anfitrion = anfitrion;
         this.precio = precio;
@@ -47,7 +47,7 @@ public class Alojamiento {
         this.ubicacion = ubicacion;
         this.calificacion = 0;
         this.tarifaAirbnb=tarifaAirbnb;
-        numAlojamiento++;
+        this.nombre=nombre;
     }
 
     public int getAlojaminetoID() {
@@ -78,6 +78,10 @@ public class Alojamiento {
         return calificacion;
     }
 
+    public String getNombre() {
+        return nombre;
+    }
+
 
     @Override
     public String toString() {
@@ -85,11 +89,11 @@ public class Alojamiento {
     }
     
     public void enlistarAlojamiento(){
-        System.out.printf("Lugar en: %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n    Habitaciones: %d\n    AlojamientoID: %d\n",this.ubicacion,this.precio,this.calificacion,this.habitaciones,this.alojaminetoID);
+        System.out.printf("+  %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n    Habitaciones: %d\n    Ubicacion: %s\n",this.nombre,this.precio,this.calificacion,this.habitaciones,this.ubicacion);
     }
     
     public void detallarAlojamientoSeleccionado(){
-        System.out.printf("\n %s\n- Anfitrion: %s\n- Costo: %s x noche\n- Habitaciones: %d\n- Calificacion: %s estrellas\n- AlojamientoID: %d\n",this.ubicacion.toUpperCase(),this.anfitrion.getNombre(),this.precio,this.habitaciones,this.calificacion,this.alojaminetoID);
+        System.out.printf("\n %s\n- Anfitrion: %s\n- Costo: %s x noche\n- Habitaciones: %d\n- Calificacion: %s estrellas\n- Ubicacion: %s\n",this.nombre.toUpperCase(),this.anfitrion.getNombre(),this.precio,this.habitaciones,this.calificacion,this.ubicacion);
         
         if (!ConexionDB.servicios(this.alojaminetoID).isEmpty()){
             System.out.println("\n*SERVICIOS DEL ALOJAMINETO*");
@@ -128,7 +132,7 @@ public class Alojamiento {
         int opcion=0;
         try{
             System.out.println("Servicio que posee su alojamiento: ");
-            String servicio = sc.nextLine();
+            String servicio =sc.nextLine();
             if (!servicio.isEmpty() && !servicio.isBlank()){
                 ConexionDB.registrarServicio(aloj_id,servicio);
             }

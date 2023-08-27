@@ -11,13 +11,13 @@ package Usuarios;
  */
 public class Mensaje {
     protected String contenido;
-    protected Usuario emisor;
-    protected Usuario receptor;
+    protected Anfitrion anfitrion;
+    protected Cliente cliente;
 
-    public Mensaje(String contenido, Usuario emisor, Usuario receptor) {
+    public Mensaje(String contenido, Anfitrion anfitrion, Cliente cliente) {
         this.contenido = contenido;
-        this.emisor = emisor;
-        this.receptor = receptor;
+        this.anfitrion = anfitrion;
+        this.cliente = cliente;
     }
     
     

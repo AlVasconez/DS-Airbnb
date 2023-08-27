@@ -12,20 +12,54 @@ import java.util.Date;
  */
 public abstract class Pago {
     
-    protected String pagoID;
-    protected String usuarioID;
+    protected int pagoID;
     protected String reservaID;
     protected double monto;
-    protected Date fecha;
+    protected String fecha;
 
-    public Pago(String pagoID, String usuarioID, String reservaID, double monto, Date fecha) {
+    public Pago(int pagoID, String reservaID, double monto, String fecha) {
         this.pagoID = pagoID;
-        this.usuarioID = usuarioID;
         this.reservaID = reservaID;
         this.monto = monto;
         this.fecha = fecha;
     }
     
+    public Pago() {
+
+    }
+
+    public int getPagoID() {
+        return pagoID;
+    }
+
+    public void setPagoID(int pagoID) {
+        this.pagoID = pagoID;
+    }
+
+    public String getReservaID() {
+        return reservaID;
+    }
+
+    public void setReservaID(String reservaID) {
+        this.reservaID = reservaID;
+    }
+
+    public double getMonto() {
+        return monto;
+    }
+
+    public void setMonto(double monto) {
+        this.monto = monto;
+    }
+
+    public String getFecha() {
+        return fecha;
+    }
+
+    public void setFecha(String fecha) {
+        this.fecha = fecha;
+    }
+
     
     
 }

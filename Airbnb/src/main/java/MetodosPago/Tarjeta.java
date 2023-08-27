@@ -13,17 +13,41 @@ import java.util.Date;
 public class Tarjeta extends Pago{
     
     protected int numeroTarjeta;
-    protected Date caducidad;
+    protected String caducidad;
     protected int codigoPostal;
     protected int codigocvv;
 
-    public Tarjeta(int numeroTarjeta, Date caducidad, int codigoPostal, int codigocvv, String pagoID, String usuarioID, String reservaID, double monto, Date fecha) {
-        super(pagoID, usuarioID, reservaID, monto, fecha);
+    public Tarjeta(int numeroTarjeta, String caducidad, int codigoPostal, int codigocvv, int pagoID, String reservaID, double monto, String fecha) {
+        super(pagoID, reservaID, monto, fecha);
         this.numeroTarjeta = numeroTarjeta;
         this.caducidad = caducidad;
         this.codigoPostal = codigoPostal;
         this.codigocvv = codigocvv;
     }
     
-    
+    public Tarjeta(int numeroTarjeta, String caducidad, int codigoPostal, int codigocvv) {
+        super( );
+        this.numeroTarjeta = numeroTarjeta;
+        this.caducidad = caducidad;
+        this.codigoPostal = codigoPostal;
+        this.codigocvv = codigocvv;
+    }
+
+    public int getNumeroTarjeta() {
+        return numeroTarjeta;
+    }
+
+    public String getCaducidad() {
+        return caducidad;
+    }
+
+    public int getCodigoPostal() {
+        return codigoPostal;
+    }
+
+    public int getCodigocvv() {
+        return codigocvv;
+    }
+
+  
 }
