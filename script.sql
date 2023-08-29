@@ -3,7 +3,7 @@ create database airbnb;
 use airbnb;
 
 CREATE TABLE ubicacion(
-	ubicacion_id int auto_increment primary KEY,
+	ubicacion_id int primary KEY,
 	pais VARCHAR(50) default "Ecuador",
 	ciudad VARCHAR(50) NOT null
 );
@@ -58,7 +58,7 @@ CREATE TABLE lista_favorito(
 -- drop table if exists servicio_alojamiento;
 CREATE TABLE servicio_alojamiento (
     alojamiento_id INT ,
-    servicio_id INT  auto_increment PRIMARY KEY,
+    servicio_id INT  PRIMARY KEY,
     servicio VARCHAR(100) NOT NULL,
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
 );
@@ -66,7 +66,7 @@ CREATE TABLE servicio_alojamiento (
 -- drop table if exists regla_alojamiento;
 CREATE TABLE regla_alojamiento (
     alojamiento_id INT,
-    reglamento_id INT auto_increment,
+    reglamento_id INT ,
     regla VARCHAR(100) NOT NULL,
     PRIMARY KEY ( reglamento_id),
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
@@ -74,7 +74,7 @@ CREATE TABLE regla_alojamiento (
 
  drop table if exists mensaje;
 CREATE TABLE mensaje (
-    mensaje_id INT auto_increment PRIMARY KEY,
+    mensaje_id INT PRIMARY KEY,
     mensaje VARCHAR(200),
     anfitrion_id INT,
     cliente_id INT,
@@ -95,7 +95,7 @@ CREATE TABLE reserva (
 
  drop table if exists pago_tarjeta;
 CREATE TABLE pago_tarjeta (
-    pago_id INT auto_increment PRIMARY KEY,
+    pago_id INT PRIMARY KEY,
     reserva_id INT,
     monto DECIMAL(10, 2) default null,
     fecha DATE,
@@ -108,7 +108,7 @@ CREATE TABLE pago_tarjeta (
 
 drop table if exists pago_paypal;
 CREATE TABLE pago_paypal (
-    pago_id INT auto_increment PRIMARY KEY,
+    pago_id INT PRIMARY KEY,
     reserva_id INT,
     monto DECIMAL(10, 2) default null,
     fecha DATE,
@@ -118,7 +118,7 @@ CREATE TABLE pago_paypal (
 
 -- drop table if exists pago_googlepay;
 CREATE TABLE pago_googlepay (
-    pago_id INT auto_increment PRIMARY KEY,
+    pago_id INT PRIMARY KEY,
     reserva_id INT,
     monto DECIMAL(10, 2) default null,
     fecha DATE,
@@ -147,6 +147,17 @@ CREATE TABLE resenia (
 );
 
 ###	PROCEDURES	##############################################################################################
+
+drop procedure if exists fechaReservada;
+DELIMITER //
+create procedure consultarAlojamiento()
+begin
+	select *
+	from alojamiento a JOIN ubicacion u ON a.ubicacion_id=u.ubicacion_id;
+end //
+DELIMITER ;
+
+call consultarAlojamiento();
 
 -- sp para comprobar si hay reservas entre las fechas realizadas por el cliente
 drop procedure if exists fechaReservada;
@@ -188,20 +199,33 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE InsertarReglaA(in alojamiento_id int, IN regla VARCHAR(100))
 BEGIN
-    insert into regla_alojamiento(alojamiento_id, regla)
-    values (alojamiento_id, regla);
+	set @reglamento_id= (select count(reglamento_id) from regla_alojamiento)+1;
+    insert into regla_alojamiento(alojamiento_id, reglamento_id, regla)
+    values (alojamiento_id,(select @reglamento_id), regla);
 END //
 DELIMITER ;
 
 drop procedure if exists InsertarAlojamiento;
 -- sp  para insertar Alojamiento
 DELIMITER //
-CREATE PROCEDURE InsertarAlojamiento(in anfitrion int ,in precio decimal(10,2), in habitaciones int, in pais varchar(100),in ciudad varchar(100), in tarifa_A decimal(10,2), in nombre varchar(40))
+CREATE PROCEDURE InsertarAlojamiento(in anfitrion int ,in precio decimal(10,2), in habitaciones int, in pais varchar(50),in ciudad varchar(50), in tarifa_A decimal(10,2), in nombre varchar(40))
 BEGIN
-	insert into ubicacion values (null,pais,ciudad);
-    set @ubicacion_ind= (select count(alojamiento_id) from ubicacion)+1;
+	DECLARE errno INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	begin
+    GET CURRENT DIAGNOSTICS CONDITION 1 errno = MYSQL_ERRNO;
+    SELECT errno AS MYSQL_ERROR;
+    ROLLBACK;
+    end;
+    start transaction;
+    set @ubicacion_ind= (select count(ubicacion_id) from ubicacion)+1;
+	insert into ubicacion (ubicacion_id, pais, ciudad)
+				values ((select @ubicacion_ind),pais,ciudad);
+    
 	set @ind= (select count(alojamiento_id) from alojamiento)+1001;
-    insert into alojamiento values((select @ind),nombre,anfitrion,precio,habitaciones,(select @ubicacion_ind),0,tarifa_A);
+    insert into alojamiento (alojamiento_id, nombre, anfitrion_id, precio_noche, habitaciones, ubicacion_id, calificacion, tarifa_airbnb)
+						values((select @ind),nombre,anfitrion,precio,habitaciones,(select @ubicacion_ind),0,tarifa_A);
+    commit;
 END //
 DELIMITER ;
 
@@ -209,7 +233,9 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE InsertarServicioA(in alojamiento_id INT, in servicio varchar(100))
 BEGIN
-    insert into servicio_alojamiento values(alojamiento_id,null,servicio);
+	set @servicio_id= (select count(servicio_id) from servicio_alojamiento)+1;
+    insert into servicio_alojamiento(alojamiento_id, servicio_id, servicio) 
+							values(alojamiento_id,(select @servicio_id),servicio);
 END //
 DELIMITER ;
 
@@ -217,25 +243,39 @@ DELIMITER ;
 DELIMITER //
 CREATE PROCEDURE InsertarMensaje(in mensaje varchar(200),in anfitrion_id int, in cliente_id int)
 BEGIN
-    insert into servicio_alojamiento values(alojamiento_id,anfitrion_id,cliente_id);
+	set @mensaje_id= (select count(mensaje_id) from mensaje)+1;
+    insert into mensaje(mensaje_id, mensaje, anfitrion_id, cliente_id) 
+				 values((select @mensaje_id), mensaje, anfitrion_id, cliente_id);
 END //
 DELIMITER ;
-
+set autocommit=0;
 -- sp insertar Pago ----------------------------------------
 
  drop procedure if exists InsertarPagoTarjeta;
 DELIMITER //
 create procedure  InsertarPagoTarjeta(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE,in fecha_salida DATE,IN numero_tarjeta INT, IN caducidad DATE, IN codigo_postal int, IN codigo_cvv SMALLINT)
 begin
-	set @indr= (select count(reserva_id) from reserva)+9001;
-	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
-    
-    set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
-    set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
-    set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
-    set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
- 
-    insert into pago_tarjeta values(null,@indr,(select @monto),fecha_ingreso,numero_tarjeta,caducidad,codigo_postal,codigo_cvv);
+	DECLARE errno INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	begin
+    GET CURRENT DIAGNOSTICS CONDITION 1 errno = MYSQL_ERRNO;
+    SELECT errno AS MYSQL_ERROR;
+    ROLLBACK;
+    end;
+	start transaction;
+		set @indr= (select count(reserva_id) from reserva)+9001;
+		insert into reserva (reserva_id, cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) 
+					values ((select @indr), cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+		
+		set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
+		set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
+		set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
+		set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
+		set @pago_id= (select count(pago_id) from pago_tarjeta)+1;
+        
+		insert into pago_tarjeta(pago_id, reserva_id, monto, fecha, numero_tarjeta, caducidad, codigo_postal, codigo_cvv) 
+						values((select @pago_id),(select @indr),(select @monto),fecha_ingreso,numero_tarjeta,caducidad,codigo_postal,codigo_cvv);
+    commit;
 end //
 DELIMITER ; 
 
@@ -244,15 +284,27 @@ DELIMITER ;
 DELIMITER //
 create procedure  InsertarPagoGPay(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE,in fecha_salida DATE,IN numeroCuenta int)
 begin
+	DECLARE errno INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	begin
+    GET CURRENT DIAGNOSTICS CONDITION 1 errno = MYSQL_ERRNO;
+    SELECT errno AS MYSQL_ERROR;
+    ROLLBACK;
+    end;
+    start transaction;
 	set @indr= (select count(reserva_id) from reserva)+9001;
-	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) 
+				values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
     
     set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
     set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
     set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
     set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
+    set @pago_id= (select count(pago_id) from pago_googlepay)+1;
  
-    insert into pago_googlepay values(null,@indr,(select @monto),fecha_ingreso,numeroCuenta);
+    insert into pago_googlepay (pago_id, reserva_id, monto, fecha, numero_cuenta) 
+						values((select @pago_id),@indr,(select @monto),fecha_ingreso,numeroCuenta);
+    commit;
 end //
 DELIMITER ; 
 
@@ -261,15 +313,27 @@ DELIMITER ;
 DELIMITER //
 create procedure  InsertarPagoPaypal(in cliente_id INT, in alojamiento_id INT,in fecha_ingreso DATE,in fecha_salida DATE,IN numeroCuenta int)
 begin
+	DECLARE errno INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	begin
+    GET CURRENT DIAGNOSTICS CONDITION 1 errno = MYSQL_ERRNO;
+    SELECT errno AS MYSQL_ERROR;
+    ROLLBACK;
+    end;
+    start transaction;
 	set @indr= (select count(reserva_id) from reserva)+9001;
-	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
+	insert into reserva (reserva_id,cliente_id, alojamiento_id, fecha_ingreso, fecha_salida) 
+				values ((select @indr),cliente_id, alojamiento_id, fecha_ingreso, fecha_salida);
     
     set @dias = (Select datediff(fecha_salida,fecha_ingreso ));
     set @t_airbnb = (select a.tarifa_airbnb from alojamiento a where a.alojamiento_id=alojamiento_id);
     set @p_noche = (select a.precio_noche from alojamiento a where a.alojamiento_id=alojamiento_id);
     set @monto = (((select @p_noche)*(select @dias))+(select @t_airbnb));
+    set @pago_id= (select count(pago_id) from pago_paypal)+1;
  
-    insert into pago_paypal values(null,@indr,(select @monto),fecha_ingreso,numeroCuenta);
+    insert into pago_paypal (pago_id, reserva_id, monto, fecha, numero_cuenta) 
+					values((select @pago_id),@indr,(select @monto),fecha_ingreso,numeroCuenta);
+	commit;
 end //
 DELIMITER ;  
 
@@ -315,9 +379,20 @@ DELIMITER ;
 -- sp borrar alojamiento
 drop procedure if exists BorrarAlojamiento;
 DELIMITER //
-CREATE PROCEDURE BorrarAlojamiento(IN alojamiento_id INT)
+CREATE PROCEDURE BorrarAlojamiento(IN aloj_id INT)
 BEGIN
-    DELETE FROM alojamiento a WHERE a.alojamiento_id = alojamiento_id;
+	DECLARE errno INT;
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+	begin
+    GET CURRENT DIAGNOSTICS CONDITION 1 errno = MYSQL_ERRNO;
+    SELECT errno AS MYSQL_ERROR;
+    ROLLBACK;
+    end;
+    start transaction;
+    DELETE FROM alojamiento  WHERE alojamiento_id = aloj_id;
+    
+    
+    commit;
 END //
 DELIMITER ;
 
@@ -469,7 +544,7 @@ insert into anfitrion values(18,'Josseline','jossolis18','0204936173','josssolis
 insert into anfitrion values(19,'Camila','camileon19','07354800274','camileon@gmail.com',1,true);
 
 ###	ALOJAMIENTOS	##############################################################################################
-vistainformacionfavorito
+
 insert into alojamiento values(1001,"TorreAG Puerto Santa Ana",10,45,3,1,4.3,12.5);
 insert into alojamiento values(1002,"HT Olivos",11,80,4,1,4.8,31.3);
 insert into alojamiento values(1003,"Casa Rosada GRANDE",12,70,2,2,4.4,21);
@@ -524,16 +599,16 @@ insert into regla_alojamiento values(1010,10,'El anfitrion no se responsabiliza 
 
 ###	SERVICIOS	##############################################################################################
 
-insert into servicio_alojamiento values(1001,null,'Servicio a la habitacion');
-insert into servicio_alojamiento values(1005,null,'Servicio de seguridad.');
-insert into servicio_alojamiento values(1003,null,'Minibar con bebidas');
-insert into servicio_alojamiento values(1007,null,'Salon para fiestas.');
-insert into servicio_alojamiento values(1005,null,'Servicio a la habitacion.');
-insert into servicio_alojamiento values(1006,null,'Servicio de limpieza diario.');
-insert into servicio_alojamiento values(1004,null,'bebidas ilimitadas del minibar');
-insert into servicio_alojamiento values(1008,null,'Piscina compartida.');
-insert into servicio_alojamiento values(1009,null,'Playa privada.');
-insert into servicio_alojamiento values(1010,null,'Zona de acampar privado.');
+insert into servicio_alojamiento values(1001,1,'Servicio a la habitacion');
+insert into servicio_alojamiento values(1005,2,'Servicio de seguridad.');
+insert into servicio_alojamiento values(1003,3,'Minibar con bebidas');
+insert into servicio_alojamiento values(1007,4,'Salon para fiestas.');
+insert into servicio_alojamiento values(1005,5,'Servicio a la habitacion.');
+insert into servicio_alojamiento values(1006,6,'Servicio de limpieza diario.');
+insert into servicio_alojamiento values(1004,7,'bebidas ilimitadas del minibar');
+insert into servicio_alojamiento values(1008,8,'Piscina compartida.');
+insert into servicio_alojamiento values(1009,9,'Playa privada.');
+insert into servicio_alojamiento values(1010,10,'Zona de acampar privado.');
 
 ###	RESEÑAS	##############################################################################################
 
