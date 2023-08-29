@@ -184,22 +184,25 @@ public class ConexionDB {
     
     public static ArrayList<Alojamiento> alojamientos() {
         Connection c = ConexionDB.getConection();
-        String consulta = "SELECT * FROM alojamiento";
-        ResultSet rs = realizarConsultar(c, consulta);
-        ArrayList<Usuario> usuarios = usuarios();
+        //String consulta = "SELECT * FROM alojamiento";
         ArrayList<Alojamiento> alojamientos = new ArrayList<>();
-        
         try {
+            PreparedStatement stmt = c.prepareStatement("call consultarAlojamiento()");
+            ResultSet rs = stmt.executeQuery();
+            ArrayList<Usuario> usuarios = usuarios();
+            
+        
             while (rs.next()) {
                 int alojamientoId = rs.getInt("alojamiento_id");
                 int anfitrionId = rs.getInt("anfitrion_id");
                 double precioNoche = rs.getDouble("precio_noche");
                 int habitaciones = rs.getInt("habitaciones");
-                String ubicacion = rs.getString("ubicacion");
+                String ubicacion = rs.getString("ciudad")+"-"+rs.getString("pais");
                 double calificacion = rs.getDouble("calificacion");
                 double tarifaAirbnb = rs.getDouble("tarifa_airbnb");
-                String nombreA = rs.getString("nombre_alojamiento");
-              
+                String nombreA = rs.getString("nombre");
+                Alojamiento.alojamientoIDActual=alojamientoId;
+                
                 for (Usuario u: usuarios){
                     if (u.getUsuarioID()==(anfitrionId)){  
                         Anfitrion anfitrion = (Anfitrion)u;
@@ -381,15 +384,17 @@ public class ConexionDB {
     
     public static void registrarAlojamiento(Alojamiento a) {
         Connection c = ConexionDB.getConection();
+        String[] ubicacionA = a.getUbicacion().split("-");
 
         try {
-            PreparedStatement stmt = c.prepareStatement("call InsertarAlojamiento(?,?,?,?,?,?)");
+            PreparedStatement stmt = c.prepareStatement("call InsertarAlojamiento(?,?,?,?,?,?,?)");
             stmt.setString(1, ""+a.getAnfitrion().getUsuarioID());
             stmt.setString(2, ""+a.getPrecio());
             stmt.setString(3, ""+a.getHabitaciones());
-            stmt.setString(4, ""+a.getUbicacion()+"");
-            stmt.setString(5, ""+a.getTarifaAirbnb());
-            stmt.setString(6, ""+a.getNombre()+"");
+            stmt.setString(4, ""+ubicacionA[1]+"");
+            stmt.setString(5, ""+ubicacionA[0]+"");
+            stmt.setString(6, ""+a.getTarifaAirbnb());
+            stmt.setString(7, ""+a.getNombre()+"");
             stmt.executeUpdate();
 
         } catch (SQLException e) {

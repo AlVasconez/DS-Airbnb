@@ -24,6 +24,7 @@ public class Alojamiento {
     private double calificacion;
     private double tarifaAirbnb;
     private String nombre;
+    public static int alojamientoIDActual = 1000;
     private ArrayList<Double> calificaciones= new ArrayList<>();
 
     //Contructor que se usa cuando por consola se crea un alojamiento
@@ -89,7 +90,7 @@ public class Alojamiento {
     }
     
     public void enlistarAlojamiento(){
-        System.out.printf("+  %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n    Habitaciones: %d\n    Ubicacion: %s\n",this.nombre,this.precio,this.calificacion,this.habitaciones,this.ubicacion);
+        System.out.printf("   %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n    Habitaciones: %d\n    Ubicacion: %s\n",this.nombre,this.precio,this.calificacion,this.habitaciones,this.ubicacion);
     }
     
     public void detallarAlojamientoSeleccionado(){

@@ -211,7 +211,7 @@ public class Sistema {
     
     
  //Reservar Alojamiento (Menu de Alolamientos-case 1)---------------------------------------------------------
-    //  Aun falta terminar
+
     private static void realizarReserva(Cliente cliente, Alojamiento aloj){
         
         System.out.print("Indique desde que fecha desea reservar EX:(MES-DIA -> 08-23): ");
@@ -223,10 +223,10 @@ public class Sistema {
         Reserva r = new Reserva(cliente.getUsuarioID(),aloj.getAlojaminetoID(),fInicio,fFinal);
         System.out.println("|---------------------------------|");
         System.out.println("|          RESUMEN RESERVA        |");
-        System.out.println("| Alojamiento: "+aloj.getNombre()+"|");
-        System.out.println("| Reservado desde: "+fInicio+" |");
-        System.out.println("| Reservado hasta: "+fFinal+" |");
-        System.out.println("| Monto total: "+montoT+"     |");
+        System.out.println("| Alojamiento: "+aloj.getNombre()+"");
+        System.out.println("| Reservado desde: "+fInicio+" ");
+        System.out.println("| Reservado hasta: "+fFinal+" ");
+        System.out.println("| Monto total: "+montoT+"     ");
         System.out.println("|---------------------------------|");
         pagarReserva(r);
         
@@ -266,8 +266,8 @@ public class Sistema {
         System.out.print("Ingrese numero de tarjeta: ");
         int numTarjeta = sc.nextInt();
         sc.nextLine();
-        System.out.print("Ingrese fecha de caducidad EX:(mes-año => 2025-05-12): ");
-        String caducidad = sc.nextLine();
+        System.out.print("Ingrese fecha de caducidad EX:(mes-año => 2025-05): ");
+        String caducidad = sc.nextLine()+"-01";
         System.out.print("Ingrese codigo CVV: ");
         int cvv = sc.nextInt();
         sc.nextLine();

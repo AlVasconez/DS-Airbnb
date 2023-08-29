@@ -86,7 +86,7 @@ public class Anfitrion extends Usuario {
         String ciudad = sc.nextLine();
         
         System.out.print("-Nombre del Alojamiento: ");
-        String nombreA = sc.nextLine(); 
+        String nombreA = sc.nextLine();
         
         System.out.print("-Costo: ");
         double costo = Double.parseDouble(sc.nextLine());
@@ -104,7 +104,7 @@ public class Anfitrion extends Usuario {
         }while(tarifaAirbnb>(costo/2));
         
         
-        Alojamiento a = new Alojamiento(this,costo,habitaciones,direccion,tarifaAirbnb, nombreA);
+        Alojamiento a = new Alojamiento(Alojamiento.alojamientoIDActual+1,this,costo,habitaciones,direccion,tarifaAirbnb, nombreA);
         ConexionDB.registrarAlojamiento(a);
         a.addUnServicio(a.getAlojaminetoID());
         a.addUnReglamento(a.getAlojaminetoID());
