@@ -267,7 +267,7 @@ public class Sistema {
         int numTarjeta = sc.nextInt();
         sc.nextLine();
         System.out.print("Ingrese fecha de caducidad EX:(mes-año => 2025-05): ");
-        String caducidad = sc.nextLine()+"-01";
+        String caducidad = sc.nextLine();
         System.out.print("Ingrese codigo CVV: ");
         int cvv = sc.nextInt();
         sc.nextLine();
