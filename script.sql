@@ -52,7 +52,7 @@ CREATE TABLE lista_favorito(
     cliente_id INT,
     PRIMARY KEY (alojamiento_id, cliente_id),
     FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
-    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
+    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE
 );
 
 -- drop table if exists servicio_alojamiento;
@@ -60,7 +60,7 @@ CREATE TABLE servicio_alojamiento (
     alojamiento_id INT ,
     servicio_id INT  PRIMARY KEY,
     servicio VARCHAR(100) NOT NULL,
-    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
+    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE
 );
 
 -- drop table if exists regla_alojamiento;
@@ -69,7 +69,7 @@ CREATE TABLE regla_alojamiento (
     reglamento_id INT ,
     regla VARCHAR(100) NOT NULL,
     PRIMARY KEY ( reglamento_id),
-    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
+    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE
 );
 
  drop table if exists mensaje;
@@ -90,7 +90,7 @@ CREATE TABLE reserva (
     fecha_ingreso date,
     fecha_salida date,
     FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
-    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
+    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE
 );
 
  drop table if exists pago_tarjeta;
@@ -132,7 +132,7 @@ CREATE TABLE fechas_reservadas (
     alojamiento_id INT,
     reserva_id INT,
     PRIMARY KEY (fecha, alojamiento_id, reserva_id),
-    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id),
+    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE,
     FOREIGN KEY (reserva_id) REFERENCES reserva(reserva_id)
 );
 
@@ -143,7 +143,7 @@ CREATE TABLE resenia (
     calificacion DECIMAL(3, 2),
     PRIMARY KEY(cliente_id,alojamiento_id),
     FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
-    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id)
+    FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE
 );
 
 ###	PROCEDURES	##############################################################################################
@@ -625,3 +625,5 @@ insert into lista_favorito values(1003,23);
 insert into lista_favorito values(1004,27);
 insert into lista_favorito values(1005,25);
 insert into lista_favorito values(1006,24);
+
+
