@@ -517,7 +517,39 @@ as
         join resenia r on a.alojamiento_id = r.alojamiento_id
         join cliente c on c.usuario_id = r.cliente_id;
 
+###########################CREACION DE USUARIOS####################################
 
+-- Crear usuarios
+CREATE USER 'luisriv10'@'localhost' IDENTIFIED BY 'luisriv10';
+CREATE USER 'anto11'@'localhost' IDENTIFIED BY 'anto11';
+CREATE USER 'anthonyc20'@'localhost' IDENTIFIED BY 'anthonyc20';
+CREATE USER 'alvancon21'@'localhost' IDENTIFIED BY 'alvancon21';
+CREATE USER 'admin'@'localhost' IDENTIFIED BY 'admin';
+
+-- Dar permisos a los usuarios
+
+GRANT INSERT, UPDATE ON airbnb.alojamiento TO 'luisriv10'@'localhost';
+GRANT EXECUTE ON PROCEDURE airbnb.InsertarAlojamiento TO 'luisriv10'@'localhost';
+GRANT SELECT ON airbnb.vistaInformacionAlojamientos TO 'luisriv10'@'localhost';
+GRANT SELECT ON airbnb.vistaInformacionReservas TO 'luisriv10'@'localhost';
+
+-- Permisos para el anfitrión Anto (anto11)
+GRANT INSERT, UPDATE, DELETE ON airbnb.alojamiento TO 'anto11'@'localhost';
+GRANT EXECUTE ON PROCEDURE airbnb.InsertarReglaA TO 'anto11'@'localhost';
+GRANT SELECT ON airbnb.vistaInformacionAlojamientos TO 'anto11'@'localhost';
+GRANT SELECT ON airbnb.vistaInformacionReservas TO 'anto11'@'localhost';
+
+-- Permisos para el cliente Anthony (anthonyc20)
+GRANT SELECT ON airbnb.vistaInformacionAlojamientos TO 'anthonyc20'@'localhost';
+GRANT SELECT ON airbnb.vistaInformacionReservas TO 'anthonyc20'@'localhost';
+
+-- Permisos para el cliente Alvan (alvancon21)
+GRANT SELECT ON airbnb.vistaInformacionAlojamientos TO 'alvancon21'@'localhost';
+GRANT SELECT ON airbnb.vistaInformacionReservas TO 'alvancon21'@'localhost';
+
+-- Permisos para el administrador
+GRANT ALL PRIVILEGES ON airbnb.* TO 'admin'@'localhost';
+FLUSH PRIVILEGES;
 
 ###################	UBICACION	#############################################################################################
 
@@ -629,3 +661,4 @@ insert into lista_favorito values(1003,23);
 insert into lista_favorito values(1004,27);
 insert into lista_favorito values(1005,25);
 insert into lista_favorito values(1006,24);
+
