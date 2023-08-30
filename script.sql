@@ -7,6 +7,7 @@ CREATE TABLE ubicacion(
 	pais VARCHAR(50) default "Ecuador",
 	ciudad VARCHAR(50) NOT null
 );
+CREATE INDEX idx_pais ON ubicacion(pais);
 
 -- drop table if exists cliente;
 CREATE TABLE cliente (
@@ -92,6 +93,8 @@ CREATE TABLE reserva (
     FOREIGN KEY (cliente_id) REFERENCES cliente(usuario_id),
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE
 );
+CREATE INDEX idx_fecha_ingreso ON reserva(fecha_ingreso);
+CREATE INDEX idx_fecha_salida ON reserva(fecha_salida);
 
  drop table if exists pago_tarjeta;
 CREATE TABLE pago_tarjeta (
@@ -135,6 +138,7 @@ CREATE TABLE fechas_reservadas (
     FOREIGN KEY (alojamiento_id) REFERENCES alojamiento(alojamiento_id) ON DELETE CASCADE,
     FOREIGN KEY (reserva_id) REFERENCES reserva(reserva_id)
 );
+CREATE INDEX idx_fecha ON fechas_reservadas(fecha);
 
 CREATE TABLE resenia (
     cliente_id INT,
@@ -625,5 +629,3 @@ insert into lista_favorito values(1003,23);
 insert into lista_favorito values(1004,27);
 insert into lista_favorito values(1005,25);
 insert into lista_favorito values(1006,24);
-
-
