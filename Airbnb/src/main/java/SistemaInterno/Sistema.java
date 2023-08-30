@@ -174,7 +174,7 @@ public class Sistema {
     public static void opcionVerAlojamientos(Cliente cliente){  
         int opcion2;
         try{
-            int opcion = verTodosLosAlojamientos();
+            int opcion = ConexionDB.mostrarAlojamiento();
             Alojamiento aloj = ConexionDB.alojamientos().get(opcion-1);
             aloj.detallarAlojamientoSeleccionado();
             do{
@@ -351,13 +351,7 @@ public class Sistema {
     
 //----------------metodos de la opcion ver mis alojamientos favoritos (Menu Cliente-opcion 3)-----------------------------
     public static void mostrarAlojamientosFavoritos(Cliente cliente){
-        if(!ConexionDB.favoritos(cliente.getUsuarioID()).isEmpty())
-            for(Alojamiento aloj:ConexionDB.favoritos(cliente.getUsuarioID())){
-                aloj.detallarAlojamientoSeleccionado();
-            }
-        else{
-            System.out.println("No ha agregado ningun alojamiento aun\n");
-        }
+        ConexionDB.mostrarFavoritos(cliente);
     }
     
 //--------------------------------------------------------------------------------------------------------    
@@ -448,6 +442,10 @@ public class Sistema {
     }
     
 //---------------------------------------------------------------------------------------------
+
+    public static void verMisReservasCliente(Cliente c) {
+        ConexionDB.verMisReservasCliente(c);
+    }
 
     
 }

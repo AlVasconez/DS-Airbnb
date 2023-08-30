@@ -73,12 +73,10 @@ public class Cliente extends Usuario{
 
             switch (opcion){
                 case 1:
-                    ConexionDB.mostrarAlojamiento();
+                    Sistema.opcionVerAlojamientos(this);
                     break;
                 case 2:
-                    for(Reserva r:ConexionDB.reservasPorCliente(this.usuarioID)){
-                        System.out.println(r.toString());
-                }
+                    Sistema.verMisReservasCliente(this);
                     break;
                 case 3:
                     Sistema.mostrarAlojamientosFavoritos(this);

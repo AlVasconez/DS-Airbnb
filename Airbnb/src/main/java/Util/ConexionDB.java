@@ -28,6 +28,36 @@ import java.util.logging.Logger;
  */
 public class ConexionDB {
     private static ConexionDB instance;
+
+    public static void verMisReservasCliente(Cliente cl) {
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM vistaInformacionReservas WHERE usuario_id =" +cl.getUsuarioID();
+        ResultSet resultSet = realizarConsultar(c, consulta);
+        ArrayList<Integer> ids= new ArrayList<>();
+        int pos = 1;
+        try {
+            while(resultSet.next()){
+                int reservaId = resultSet.getInt("reserva_id");
+                int anfitrionId = resultSet.getInt("anfitrion_id");
+                String nombreAlojamiento = resultSet.getString("nombre_alojamiento");
+                String nombreCliente = resultSet.getString("nombre_cliente");
+                String fechaIngreso = resultSet.getString("fecha_ingreso");
+                String fechaSalida = resultSet.getString("fecha_salida");
+                double montoPagar = resultSet.getDouble("monto_pagar");
+
+                System.out.print("Nombre Alojamiento: " + nombreAlojamiento);
+                System.out.print("Fecha Ingreso: " + fechaIngreso);
+                System.out.print("Fecha Salida: " + fechaSalida);
+                System.out.print("Monto a Pagar: " + montoPagar);
+                System.out.println();
+                        pos++;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println(pos + ".- Volver");
+        
+    }
     private Connection conn = null;
     private String db = "airbnb";
     private String user = "root";
@@ -150,6 +180,36 @@ public class ConexionDB {
         return reservas;
     }
 
+    public static void mostrarFavoritos(Usuario u){
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM vistaInformacionFavorito WHERE cliente_id = " + u.getUsuarioID();
+        ResultSet resultSet = realizarConsultar(c, consulta);
+        ArrayList<Integer> ids= new ArrayList<>();
+        int pos = 1;
+        try {
+            while(resultSet.next()){
+                String nombreAlojamiento = resultSet.getString("nombre_alojamiento");
+                        String pais = resultSet.getString("pais");
+                        String ciudad = resultSet.getString("ciudad");
+                        double precioNoche = resultSet.getDouble("precio_noche");
+                        String nombreAnfitrion = resultSet.getString("nombre_anfitrion");
+                        int reservado = resultSet.getInt("reservado");
+
+                        System.out.print(pos + ".- Nombre Alojamiento: " + nombreAlojamiento);
+                        System.out.print(" País: " + pais);
+                        System.out.print(" Ciudad: " + ciudad);
+                        System.out.print(" Precio por Noche: " + precioNoche);
+                        System.out.print(" Nombre Anfitrión: " + nombreAnfitrion);
+                        System.out.print(" Disponible: " + (reservado == 1 ? "Sí" : "No"));
+                        System.out.println();
+                        pos++;
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println(pos + ".- Volver");
+    }
+    
     
     public static int mostrarAlojamiento(){
         Scanner sc = new Scanner(System.in);
@@ -179,18 +239,8 @@ public class ConexionDB {
         } catch (SQLException e) {
             System.out.println(e.getMessage());
         }
-        System.out.println((ids.size() + 1) + ".- Volver");
-        int op;
-        do{
-            System.out.println("Elegir una posición: ");
-            op = sc.nextInt();
-            sc.nextLine();
-        }while(1<op || op>ids.size());
-        if (op - 1 == ids.size() ) {
-            return - 1;
-        }else{
-            return op;
-        }
+        System.out.println(pos + ".- Volver");
+        return Sistema.getOpcion(pos);
     }
     
     public static ArrayList<Usuario> usuarios() {
