@@ -30,8 +30,8 @@ public class ConexionDB {
     private static ConexionDB instance;
     private Connection conn = null;
     private String db = "airbnb";
-    private String user = "Airbnb";
-    private String password = "Proyecto-Airbnb";
+    private String user = "root";
+    private String password = "root";
     private String ip = "localhost";
     private String puerto = "3306";
     private String cadenaCon = String.format("jdbc:mysql://%s/%s",ip,db);
@@ -150,6 +150,48 @@ public class ConexionDB {
         return reservas;
     }
 
+    
+    public static int mostrarAlojamiento(){
+        Scanner sc = new Scanner(System.in);
+        Connection c = ConexionDB.getConection();
+        String consulta = "SELECT * FROM vistaInformacionAlojamientos";
+        ResultSet resultSet = realizarConsultar(c, consulta);
+        ArrayList<Integer> ids= new ArrayList<>();
+        int pos = 1;
+        try {
+            while(resultSet.next()){
+                int alojamiento_id = resultSet.getInt("alojamiento_id");
+               String nombreAlojamiento = resultSet.getString("nombre_alojamiento");
+                String pais = resultSet.getString("pais");
+                String ciudad = resultSet.getString("ciudad");
+                double precioNoche = resultSet.getDouble("precio_noche");
+                String nombreAnfitrion = resultSet.getString("nombre_anfitrion");
+                double promedioResenas = resultSet.getDouble("promedio_resenas");
+
+                String formattedLine = String.format(
+                    "%d.- Nombre: %s, País: %s, Ciudad: %s, Precio/Noche: %.2f, Anfitrión: %s, Promedio Reseñas: %.2f",
+                    pos,nombreAlojamiento, pais, ciudad, precioNoche, nombreAnfitrion, promedioResenas
+                );
+                pos++;
+                ids.add(alojamiento_id);
+                System.out.println(formattedLine);
+            }
+        } catch (SQLException e) {
+            System.out.println(e.getMessage());
+        }
+        System.out.println((ids.size() + 1) + ".- Volver");
+        int op;
+        do{
+            System.out.println("Elegir una posición: ");
+            op = sc.nextInt();
+            sc.nextLine();
+        }while(1<op || op>ids.size());
+        if (op - 1 == ids.size() ) {
+            return - 1;
+        }else{
+            return op;
+        }
+    }
     
     public static ArrayList<Usuario> usuarios() {
         Connection c = ConexionDB.getConection();

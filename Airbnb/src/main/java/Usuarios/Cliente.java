@@ -73,7 +73,7 @@ public class Cliente extends Usuario{
 
             switch (opcion){
                 case 1:
-                    Sistema.opcionVerAlojamientos(this);
+                    ConexionDB.mostrarAlojamiento();
                     break;
                 case 2:
                     for(Reserva r:ConexionDB.reservasPorCliente(this.usuarioID)){
