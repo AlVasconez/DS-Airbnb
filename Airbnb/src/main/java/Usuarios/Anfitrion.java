@@ -117,14 +117,6 @@ public class Anfitrion extends Usuario {
         }
     }
     
-    public void enviarMensaje(Cliente cliente){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Escriba el mensaje que le quiera mandar a "+cliente.getNombre());
-        String mensaje = sc.nextLine();
-        if(!mensaje.isEmpty() && !mensaje.isBlank()){
-            ConexionDB.registrarMensaje(mensaje, this.usuarioID, cliente.usuarioID);
-            System.out.println("***Mensaje Enviado***\n");
-        }
-    }
+    
     
 }

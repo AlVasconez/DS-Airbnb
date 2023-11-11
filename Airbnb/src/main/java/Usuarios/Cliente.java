@@ -50,9 +50,7 @@ public class Cliente extends Usuario{
         }
     }
 
-    public void addListaFavoritos(Alojamiento alojamiento){
-        ConexionDB.registrarFavorito(alojamiento.getAlojaminetoID(),this.usuarioID);
-    }
+    
 
     
     @Override
@@ -91,14 +89,6 @@ public class Cliente extends Usuario{
         }
         while (opcion!=5);
     }
-    public void enviarMensaje(Anfitrion anfitrion){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Escriba el mensaje que le quiera mandar a "+anfitrion.getNombre());
-        String mensaje = sc.nextLine();
-        if(!mensaje.isEmpty() && !mensaje.isBlank()){
-            ConexionDB.registrarMensaje(mensaje, anfitrion.usuarioID, this.usuarioID);
-            System.out.println("***Mensaje Enviado***\n");
-        }
-    }
+    
     
 }
