@@ -5,10 +5,12 @@
 package SistemaInterno;
 
 import Usuarios.Anfitrion;
+import Usuarios.Ianfitrion;
 import Util.ConexionDB;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Arrays;
+
 
 /**
  *
@@ -17,7 +19,7 @@ import java.util.Arrays;
 public class Alojamiento {
     
     private int alojaminetoID;
-    private Anfitrion anfitrion;
+    private Ianfitrion anfitrion;
     private double precio;
     private int habitaciones;
     private String ubicacion;
@@ -28,7 +30,7 @@ public class Alojamiento {
     private ArrayList<Double> calificaciones= new ArrayList<>();
 
     //Contructor que se usa cuando por consola se crea un alojamiento
-    public Alojamiento(Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb,String nombre) {
+    public Alojamiento(Ianfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb,String nombre) {
         this.alojaminetoID = 0;
         this.anfitrion = anfitrion;
         this.precio = precio;
@@ -40,7 +42,7 @@ public class Alojamiento {
     }
     
     //Constructor usado al recibir datos de la BD
-    public Alojamiento(int alojaminetoID,Anfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb,String nombre) {
+    public Alojamiento(int alojaminetoID,Ianfitrion anfitrion, double precio, int habitaciones, String ubicacion,double tarifaAirbnb,String nombre) {
         this.alojaminetoID = alojaminetoID;
         this.anfitrion = anfitrion;
         this.precio = precio;
@@ -55,7 +57,7 @@ public class Alojamiento {
         return alojaminetoID;
     }
     
-    public Anfitrion getAnfitrion() {
+    public Ianfitrion getAnfitrion() {
         return anfitrion;
     }
 

@@ -16,7 +16,7 @@ import java.util.Scanner;
  *
  * @author vv
  */
-public class Anfitrion extends Usuario {
+public abstract class Anfitrion  extends Usuario implements Ianfitrion {
 
     public Anfitrion(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono, String direccionFisica, boolean verificacion) {
         super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
@@ -115,8 +115,8 @@ public class Anfitrion extends Usuario {
         catch(Exception e){
             System.out.println("********Ingreso de datos erroneo********");
         }
-    }
+    }       
     
     
-    
+       
 }
