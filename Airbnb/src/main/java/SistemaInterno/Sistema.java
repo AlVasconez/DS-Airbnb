@@ -238,7 +238,7 @@ public class Sistema {
     
 //-------------------   METODOS DE PAGO -------------------------------------------------------
 
-    public static void pagarReserva(Reserva r){
+    public static void pagarReserva(Reserva r,MetodoPago metodoPago){
         System.out.println("""
                            Escoja de que forma desea pagar:
                            1. Tarjeta
@@ -249,7 +249,7 @@ public class Sistema {
         int opcion = getOpcion(4);
         switch(opcion){
             case 1:
-                MetodoPago.pagar(r);
+                metodoPago.pagar(r);
                 break;
             case 2:
                 pagarConPaypal(r);
@@ -263,7 +263,7 @@ public class Sistema {
         
     }
     
-     MetodoPago.pagar(reserva r);
+     
     
     
     private static void pagarConPaypal(Reserva r){
