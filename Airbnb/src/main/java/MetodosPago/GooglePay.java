@@ -10,23 +10,17 @@ import java.util.Date;
  *
  * @author vv
  */
-public class GooglePay extends Pago{
-    
-    protected int numeroCuenta;
+public class GooglePay extends PagoServicioExterno{
 
     public GooglePay(int numeroCuenta, int pagoID, String usuarioID, String reservaID, double monto, String fecha) {
-        super(pagoID, reservaID, monto, fecha);
+        super(numeroCuenta, pagoID, usuarioID, reservaID, monto, fecha);
         this.numeroCuenta = numeroCuenta;
     }
     
     public GooglePay(int numeroCuenta) {
-        super();
-        this.numeroCuenta = numeroCuenta;
+        super(numeroCuenta);
     }
 
-    public int getNumeroCuenta() {
-        return numeroCuenta;
-    }
     
     
 }

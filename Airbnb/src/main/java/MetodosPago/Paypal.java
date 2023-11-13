@@ -10,22 +10,15 @@ import java.util.Date;
  *
  * @author vv
  */
-public class Paypal extends Pago{
+public class Paypal extends PagoServicioExterno{
     
-    protected int numeroCuenta;
-
     public Paypal(int numeroCuenta, int pagoID, String usuarioID, String reservaID, double monto, String fecha) {
-        super(pagoID, reservaID, monto, fecha);
+        super(numeroCuenta, pagoID, usuarioID, reservaID, monto, fecha);
         this.numeroCuenta = numeroCuenta;
     }
     
     public Paypal(int numeroCuenta) {
-        super();
-        this.numeroCuenta = numeroCuenta;
-    }
-
-    public int getNumeroCuenta() {
-        return numeroCuenta;
+        super(numeroCuenta);
     }
     
     
