@@ -4,20 +4,16 @@
  */
 package SistemaInterno;
 
-import MetodosPago.*;
+import Gestion.GestionAlojamiento;
+import Gestion.GestionPagoAlojamiento;
+import Persistencia.PersistenciaAlojamiento;
+import Persistencia.PersistenciaFavoritos;
+import Persistencia.PersistenciaResenias;
+import Persistencia.PersistenciaReserva;
+import Persistencia.PersistenciaUsuarios;
 import Usuarios.*;
 import java.util.ArrayList;
 import java.util.Scanner;
-import Util.ConexionDB;
-import java.sql.Connection;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Random;
-import MetodosPago.MetodoPago;
-
 /**
  *
  * @author vv
@@ -50,44 +46,7 @@ public class Sistema {
         }
         return opcion;
     }
-    
-    public static int diasEstancia(String fInicio, String fSalida){
-
-        String[] fechaI = fInicio.split("-");
-        String[] fechaS = fSalida.split("-");
-        int anio = 365*(Integer.parseInt(fechaS[0])-Integer.parseInt(fechaI[0]));
-        int mes = 30*(Integer.parseInt(fechaS[1])-Integer.parseInt(fechaI[1]));
-        int dia = 1*(Integer.parseInt(fechaS[2])-Integer.parseInt(fechaI[2]));
-        if((anio+mes+dia)==0){
-            return 1;
-        }
-        return anio+mes+dia;
-    }
-    
-    public static Date txtaDate(String fecha){
-            
-            //Crear Variable tipo Date para asignarlo en la clase Revision
-
-            DateFormat formato = new SimpleDateFormat("yyyy-MM-dd");
-            
-            Date fechaSolici = null;
-            try {
-            // instancia de util.Calendar
-                Calendar cal = Calendar.getInstance();
-            // Parsing date
-              cal.setTime(formato.parse(fecha));
-              fechaSolici = cal.getTime();
-            }
-            // Catch block to handle the exceptions
-            catch (ParseException except) {
-
-            // Excepcion usando printStackTrace() 
-              except.printStackTrace();
-            }
-            
-            return fechaSolici;
-    }
-
+   
 //-------------------------------------------------------------------------------------------------
 //------------------    SECCION DE INGRESO DE USUARIO    ------------------------------------------
 //-------------------------------------------------------------------------------------------------
@@ -95,7 +54,8 @@ public class Sistema {
 //  un usuario y luego verificarlo. 
   
     private static Usuario getUsuario(int usuario, String contrasenia){
-        for (Usuario u:ConexionDB.usuarios()){
+        PersistenciaUsuarios pUsuarios = new PersistenciaUsuarios();
+        for (Usuario u:pUsuarios.listarUsuarios()){
             if((u.getUsuarioID()==(usuario)) &&(u.getContrasenia().equals(contrasenia))){
                 return u;
             }
@@ -104,7 +64,8 @@ public class Sistema {
     }
     
     private static boolean verificacion(int usuario, String contrasenia){
-        for (Usuario u:ConexionDB.usuarios()){
+        PersistenciaUsuarios pUsuarios = new PersistenciaUsuarios();
+        for (Usuario u:pUsuarios.listarUsuarios()){
             if((u.getUsuarioID()==(usuario)) &&(u.getContrasenia().equals(contrasenia))){
                 return true;
             }
@@ -151,33 +112,15 @@ public class Sistema {
     
 //-----------metodos de la opcion ver alojamientos (Menu Cliente-opcion 1)------------------------------
     
-    private static int verTodosLosAlojamientos(){    
-        int opcionA;
-        int contador = 1;
-        
-        for(Alojamiento a:ConexionDB.alojamientos()){
-            try{
-                System.out.print(contador+")  ");
-                a.enlistarAlojamiento();
-            }
-            catch(Exception e){
-                System.out.print(e.getMessage());
-            }
-            contador++;           
-        }
-        System.out.println(contador+")    Volver");
-
-        opcionA=getOpcion(ConexionDB.alojamientos().size()+1);
-        
-        return opcionA;
-    }
-    
+   
     public static void opcionVerAlojamientos(Cliente cliente){  
         int opcion2;
         try{
-            int opcion = ConexionDB.mostrarAlojamiento();
-            Alojamiento aloj = ConexionDB.alojamientos().get(opcion-1);
-            aloj.detallarAlojamientoSeleccionado();
+            PersistenciaAlojamiento pAloj = new PersistenciaAlojamiento();
+            int opcion = pAloj.mostrarTodo();
+            Alojamiento aloj = pAloj.listarAlojamientos().get(opcion-1);
+            GestionAlojamiento gAloj = new GestionAlojamiento();
+            gAloj.detallarElemento(aloj);
             do{
             //  MENU OPCIONES DE ALOJAMIENTO
             System.out.println("""
@@ -192,13 +135,16 @@ public class Sistema {
             
                 switch (opcion2){
                     case 1 :
-                        realizarReserva(cliente,aloj);
+                        GestionPagoAlojamiento gpAlog = new GestionPagoAlojamiento();
+                        gpAlog.realizarReserva(cliente,aloj);
                         break; 
                     case 2 :
-                        mostrarReseniasAlojamiento(aloj);
+                        PersistenciaReserva pRes = new PersistenciaReserva();
+                        pRes.listarReservasPorAlojamiento(aloj.getAlojaminetoID());
                         break;
                     case 3 :
-                        cliente.addListaFavoritos(aloj);
+                        PersistenciaFavoritos pfav = new PersistenciaFavoritos();
+                        pfav.guardar(cliente.getUsuarioID(), aloj.getAlojaminetoID());
                         break;
                     case 4 :
                         realizarResenha(cliente, aloj);
@@ -210,111 +156,13 @@ public class Sistema {
         catch(Exception e){}
     }
     
-    
- //Reservar Alojamiento (Menu de Alolamientos-case 1)---------------------------------------------------------
-
-    private static void realizarReserva(Cliente cliente, Alojamiento aloj){
-        
-        System.out.print("Indique desde que fecha desea reservar EX:(MES-DIA -> 08-23): ");
-        String fInicio = "2023-"+sc.nextLine();
-        System.out.print("Indique hasta que fecha desea reservar EX:(MES-DIA -> 08-25): ");
-        String fFinal = "2023-"+sc.nextLine();
-        //DESPUES HAY QUE HACER QUE EL MONTO SE TRAIGA DESDE LA BD (ESTE NO SE QUEDA SOLO ES PARA TENER UNA IDEA)
-        double montoT = ((diasEstancia(fInicio,fFinal)*aloj.getPrecio())+aloj.getTarifaAirbnb());
-        Reserva r = new Reserva(cliente.getUsuarioID(),aloj.getAlojaminetoID(),fInicio,fFinal);
-        System.out.println("|---------------------------------|");
-        System.out.println("|          RESUMEN RESERVA        |");
-        System.out.println("| Alojamiento: "+aloj.getNombre()+"");
-        System.out.println("| Reservado desde: "+fInicio+" ");
-        System.out.println("| Reservado hasta: "+fFinal+" ");
-        System.out.println("| Monto total: "+montoT+"     ");
-        System.out.println("|---------------------------------|");
-        pagarReserva(r);
-        
-        
-        
-        
-    }
-    
-//-------------------   METODOS DE PAGO -------------------------------------------------------
-
-    public static void pagarReserva(Reserva r,MetodoPago metodoPago){
-        System.out.println("""
-                           Escoja de que forma desea pagar:
-                           1. Tarjeta
-                           2. Paypal
-                           3. Google Pay
-                           4. Salir
-                           """);
-        int opcion = getOpcion(4);
-        switch(opcion){
-            case 1:
-                metodoPago.pagar(r);
-                break;
-            case 2:
-                pagarConPaypal(r);
-                break;
-            case 3:
-                pagarConGooglePay(r);
-                break;
-            case 4:
-                break;
-        }
-        
-    }
-    
-     
-    
-    
-    private static void pagarConPaypal(Reserva r){
-        System.out.print("Ingrese numero de cuenta: ");
-        int numCuentaP = sc.nextInt();
-        sc.nextLine();
-        Paypal p = new Paypal(numCuentaP);
-        System.out.print("""
-                         1. Confirmar Pago
-                         2. Cancelar
-                         """);
-        int opcion = getOpcion(2);
-        if (opcion==1){
-            ConexionDB.registrarPagoPaypal(r, p);
-        }
-    }
-    
-    private static void pagarConGooglePay(Reserva r){
-        System.out.print("Ingrese numero de cuenta: ");
-        int numCuentaGP = sc.nextInt();
-        sc.nextLine();
-        GooglePay gp = new GooglePay(numCuentaGP);
-        System.out.print("""
-                         1. Confirmar Pago
-                         2. Cancelar
-                         """);
-        int opcion = getOpcion(2);
-        if (opcion==1){
-            ConexionDB.registrarPagoGPay(r, gp);
-        }
-    }
-    
-
- //Ver reseñas del alojamiento (Menu de Alolamientos-case2)---------------------------------------------------
-    private static void mostrarReseniasAlojamiento(Alojamiento aloj){
-        if(!ConexionDB.resenhas(aloj).isEmpty()){
-            System.out.println("\n--------- RESEÑAS DE ESTE ALOJAMIENTO ----------\n");
-            for(Resenha r:ConexionDB.resenhas(aloj)){
-                r.toString();
-            }
-        }
-        else{
-            System.out.println("El alojamiento no posee ninguna reseña realizada");
-        }
-    }
-
-    
+ 
+   
  //Realizar reseña (Menu de Alolamientos-case4)----------------------------------------------------------------
     private static void realizarResenha(Cliente cliente, Alojamiento aloj){
         boolean puede = false;
-        for(Reserva r:ConexionDB.reservasPorCliente(cliente.getUsuarioID())){
+        PersistenciaReserva pRes = new PersistenciaReserva();
+        for(Reserva r:pRes.listarReservasPorUsuario(cliente.getUsuarioID())){
             if(r.getAlojaminetoID()==(aloj.getAlojaminetoID())){
                 puede=true;
             }
@@ -326,14 +174,7 @@ public class Sistema {
             System.out.println("No ha reservado este alojamiento. No puede realizar reseña");
         }
     }
-    
-    
-    
-//----------------metodos de la opcion ver mis alojamientos favoritos (Menu Cliente-opcion 3)-----------------------------
-    public static void mostrarAlojamientosFavoritos(Cliente cliente){
-        ConexionDB.mostrarFavoritos(cliente);
-    }
-    
+
 //--------------------------------------------------------------------------------------------------------    
 //------------------    SECCION DEL MENU USUARIO (TIPO ANFITRION)    -------------------------------------- 
 //---------------------------------------------------------------------------------------------------------  
@@ -344,12 +185,14 @@ public class Sistema {
         int contador=0;
         Alojamiento aloj =null; 
         ArrayList<Alojamiento> misAlojamientos=new ArrayList<>();
+        PersistenciaAlojamiento pAloj = new PersistenciaAlojamiento();
         
-        for(Alojamiento a: ConexionDB.alojamientos()){
+        for(Alojamiento a: pAloj.listarAlojamientos()){
             if(a.getAnfitrion().equals(anfitrion)){
                 contador++;
                 System.out.print(contador+")  ");
-                a.enlistarAlojamiento();
+                GestionAlojamiento gAloj = new GestionAlojamiento();
+                gAloj.detallarElemento(a);
                 misAlojamientos.add(a);
             }
         } 
@@ -360,31 +203,7 @@ public class Sistema {
         }
         return aloj;
     }
-    
-    private static void reseñasPublicadas(Alojamiento alojamiento){
-        if (!ConexionDB.resenhas(alojamiento).isEmpty()){
-            for(Resenha r:ConexionDB.resenhas(alojamiento)){
-                System.out.println(r.toString());
-            }
-        }
-        else{
-            System.out.println("***Este alojamiento aun no ha recibido reseñas****\n");
-        }
-    }
-    
-    private static void reservasRealizadas(Alojamiento alojamiento){
-        ArrayList<Reserva> reservasAloj = ConexionDB.reservasPorAlojamiento(alojamiento.getAlojaminetoID());
-            
-        if (!reservasAloj.isEmpty()){
-            for(Reserva r:reservasAloj){
-                System.out.println(r.toString());
-            }
-        }
-        else{
-            System.out.println("***Este alojamiento aun no posee reservas realizadas****\n");
-        }
-    }
-    
+
    
     public static void misAlojamientosA(Anfitrion anfitrion){
         Alojamiento aloj = elegirUnAlojamiento(anfitrion);
@@ -399,10 +218,12 @@ public class Sistema {
 
             switch (opcionA){
                 case 1:
-                    reseñasPublicadas(aloj);
+                    PersistenciaResenias pResenias = new PersistenciaResenias();
+                    pResenias.mostrar(aloj);
                     break;
                 case 2:
-                    reservasRealizadas(aloj);
+                    PersistenciaReserva pReservas = new PersistenciaReserva();
+                    pReservas.mostrar(aloj.getAlojaminetoID());
                     break;
             }
         }
@@ -416,20 +237,9 @@ public class Sistema {
             System.out.println("2:No");
             int opcionE = getOpcion(2);
             if(opcionE==1){
-                ConexionDB.deleteAlojamiento(aloj); 
+                PersistenciaAlojamiento pAloj = new PersistenciaAlojamiento();
+                pAloj.delete(aloj); 
             }
-        }
-    }
-    
-//---------------------------------------------------------------------------------------------
-
-    public static void verMisReservasCliente(Cliente c) {
-        ConexionDB.verMisReservasCliente(c);
-    }
-
-    private static class reserva {
-
-        public reserva() {
         }
     }
 

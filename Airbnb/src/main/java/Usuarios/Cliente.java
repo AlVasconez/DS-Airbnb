@@ -4,13 +4,12 @@
  */
 package Usuarios;
 
-import SistemaInterno.Resenha;
+import Persistencia.PersistenciaAlojamiento;
+import Persistencia.PersistenciaFavoritos;
+import Persistencia.PersistenciaResenias;
+import Persistencia.PersistenciaReserva;
 import SistemaInterno.Alojamiento;
-import SistemaInterno.Reserva;
 import SistemaInterno.Sistema;
-import Util.ConexionDB;
-import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -36,12 +35,12 @@ public class Cliente extends Usuario{
         System.out.println("Calificacion para este alojamiento(Ex:4.3):");
         Double calificacion = sc.nextDouble();
         sc.nextLine();
-        alojamiento.cambiarCalificaion(calificacion);
-        
+
         //Creando una resenha
         System.out.println("Comentario sobre su estancia:(Dar enter si no desea comentar)");
         String resenha = sc.nextLine();
-        ConexionDB.registrarResenha(this.usuarioID, alojamiento.getAlojaminetoID(), resenha, calificacion);
+        PersistenciaResenias pRes = new PersistenciaResenias();
+        pRes.guardar(this.usuarioID, alojamiento.getAlojaminetoID(), resenha, calificacion);
         System.out.println("Se ha actualizado la calificacion de este alojamiento.");
         }
         catch(Exception e){
@@ -50,9 +49,6 @@ public class Cliente extends Usuario{
         }
     }
 
-    
-
-    
     @Override
     public void menuUsuario() {
         int opcion;
@@ -68,19 +64,24 @@ public class Cliente extends Usuario{
                     """);
 
             opcion = Sistema.getOpcion(5);
+            
 
             switch (opcion){
+                
                 case 1:
                     Sistema.opcionVerAlojamientos(this);
                     break;
                 case 2:
-                    Sistema.verMisReservasCliente(this);
+                    PersistenciaReserva pReservas = new PersistenciaReserva();
+                    pReservas.mostrar(this.usuarioID);
                     break;
                 case 3:
-                    Sistema.mostrarAlojamientosFavoritos(this);
+                    PersistenciaFavoritos pAloj = new PersistenciaFavoritos();
+                    pAloj.mostrar(this.usuarioID);
                     break;
                 case 4:
-                    ConexionDB.resenhas(this);
+                    PersistenciaResenias pRes = new PersistenciaResenias();
+                    pRes.mostrar(this);
                     break;
                 case 5:
                     System.out.println("***SESION CERRADA CON EXITO***\n");
