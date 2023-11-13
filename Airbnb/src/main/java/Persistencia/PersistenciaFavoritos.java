@@ -22,7 +22,7 @@ public class PersistenciaFavoritos implements RealizarConsulta, MostrarElemento 
     
     @Override
     public void mostrar(int clienteId) {
-        String consulta = "SELECT * FROM lista_favorito WHERE cliente_id = " + clienteId;
+        String consulta = "SELECT * FROM lista_favorito  WHERE cliente_id = " + clienteId;
         ResultSet rs = realizarConsulta(consulta);
         PersistenciaAlojamiento aloj = new PersistenciaAlojamiento();
         try {

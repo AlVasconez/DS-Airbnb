@@ -4,6 +4,7 @@
  */
 package Usuarios;
 
+import Persistencia.PersistenciaMensaje;
 import Util.ConexionDB;
 import java.util.Scanner;
 
@@ -31,7 +32,8 @@ public class Mensaje {
         System.out.println("Escriba el mensaje que le quiera mandar a "+anfitrion.getNombre());
         String mensaje = sc.nextLine();
         if(!mensaje.isEmpty() && !mensaje.isBlank()){
-            ConexionDB.registrarMensaje(mensaje, anfitrion.usuarioID, usuario.getUsuarioID());
+            PersistenciaMensaje pmens = new PersistenciaMensaje();
+            pmens.guardar(mensaje, anfitrion.usuarioID, usuario.getUsuarioID());
             System.out.println("***Mensaje Enviado***\n");
         }
     }
@@ -43,7 +45,8 @@ public class Mensaje {
         System.out.println("Escriba el mensaje que le quiera mandar a "+cliente.getNombre());
         String mensaje = sc.nextLine();
         if(!mensaje.isEmpty() && !mensaje.isBlank()){
-            ConexionDB.registrarMensaje(mensaje, anfitrion.getUsuarioID(), cliente.usuarioID);
+            PersistenciaMensaje pmens = new PersistenciaMensaje();
+            pmens.guardar(mensaje, anfitrion.getUsuarioID(), cliente.usuarioID);
             System.out.println("***Mensaje Enviado***\n");
         }
     }

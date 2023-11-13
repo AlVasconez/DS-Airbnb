@@ -4,10 +4,8 @@
  */
 package Usuarios;
 
+import Persistencia.PersistenciaFavoritos;
 import SistemaInterno.Alojamiento;
-import Util.ConexionDB;
-import Usuarios.Usuario;
-
 /**
  *
  * @author usuario
@@ -19,6 +17,7 @@ public class ListaFav {
     
     // principio respondabilidad unica 
     public void addListaFavoritos(Alojamiento alojamiento,Usuario usuario){
-        ConexionDB.registrarFavorito(alojamiento.getAlojaminetoID(),usuario.getUsuarioID());
+        PersistenciaFavoritos pFavs = new PersistenciaFavoritos();
+            pFavs.guardar(alojamiento.getAlojaminetoID(),usuario.getUsuarioID());
     }
 }

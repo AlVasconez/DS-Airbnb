@@ -16,9 +16,10 @@ import java.sql.SQLException;
 public interface RealizarConsulta {
    
     default ResultSet realizarConsulta( String consulta) {
+        Connection con = ConexionDB.getConection();
         ResultSet rs = null;
         
-        try (Connection con = ConexionDB.getConection()){
+        try {
             PreparedStatement pstmt = con.prepareStatement(consulta);
             rs = pstmt.executeQuery();
         } 

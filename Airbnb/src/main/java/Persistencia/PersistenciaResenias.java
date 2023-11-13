@@ -5,7 +5,6 @@
 package Persistencia;
 
 import SistemaInterno.Alojamiento;
-import SistemaInterno.Resenia;
 import Usuarios.Cliente;
 import Usuarios.Usuario;
 import Util.ConexionDB;

@@ -12,7 +12,7 @@ import java.util.Date;
  *
  * @author vv
  */
-public class Reserva {
+public class Reserva implements CalculoTiempoReserva{
     
     private int reservaID;
     private int clienteID;
@@ -30,7 +30,7 @@ public class Reserva {
         this.alojaminetoID = alojaminetoID;
         this.fechaInicio = fechaInicio;
         this.fechaSalida = fechaSalida;
-        this.tiempoEstancia = Sistema.diasEstancia(fechaInicio, fechaSalida);
+        this.tiempoEstancia = diasEstancia(fechaInicio, fechaSalida);
     }
     
     public Reserva(int clienteID, int alojaminetoID, String fechaInicio, String fechaSalida) {
@@ -39,7 +39,7 @@ public class Reserva {
         this.alojaminetoID = alojaminetoID;
         this.fechaInicio = fechaInicio;
         this.fechaSalida = fechaSalida;
-        this.tiempoEstancia = Sistema.diasEstancia(fechaInicio, fechaSalida);
+        this.tiempoEstancia = diasEstancia(fechaInicio, fechaSalida);
         this.reservaIDPred++;
     }
 
