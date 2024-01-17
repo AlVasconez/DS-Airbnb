@@ -7,16 +7,15 @@ package Usuarios;
 import SistemaInterno.Alojamiento;
 import SistemaInterno.Sistema;
 import Util.ConexionDB;
-import java.sql.Connection;
-import java.util.ArrayList;
-import java.util.Scanner;
+import Gestion.GestionAlojamiento;
+import Persistencia.PersistenciaAlojamiento;
 
 
 /**
  *
  * @author vv
  */
-public class Anfitrion extends Usuario {
+public class Anfitrion  extends Usuario {
 
     public Anfitrion(Integer usuarioID, String contrasenha, String nombre, String correo, String telefono, String direccionFisica, boolean verificacion) {
         super(usuarioID, contrasenha, nombre, correo, telefono,direccionFisica, verificacion);
@@ -39,92 +38,33 @@ public class Anfitrion extends Usuario {
                         2. Ver mis alojamientos
                         3. Editar mis alojamientos
                         4. Eliminar mi alojamiento
-                        5. Eliminar una reserva
-                        6. Cerrar Sesion
+                        5. Cerrar Sesion
                     """);
 
-            opcion = Sistema.getOpcion(6);
+            opcion = Sistema.getOpcion(5);
 
             switch(opcion){
                 case 1:
-                    publicarAlojamiento();
+                    GestionAlojamiento gAloj = new GestionAlojamiento();
+                    gAloj.publicar(this);
                     break;
                 case 2:
                     Sistema.misAlojamientosA(this);
                     break;
                 case 3:
-                    ConexionDB.modificarAlojamiento(this);
+                    PersistenciaAlojamiento pAloj = new PersistenciaAlojamiento();
+                    pAloj.modificar(this);
                     break;
                 case 4:
                     Sistema.eliminarAlojamiento(this);
                     break;
                 case 5:
-                    Sistema.eliminarAlojamiento(this);
-                    break;
-                case 6:
                     System.out.println("***SESION CERRADA CON EXITO***\n");
                     break;
                     
             }
         }
-        while(opcion!=6);
+        while(opcion!=5);
     }
-    
 
-
-//---------------------------------------------------------------------------------------
-    //Metodo de la opcion publicar alojamientos (ANFITRION)
-    public void publicarAlojamiento(){
-        Scanner sc = new Scanner(System.in);
-        
-        try{
-        System.out.println("------ INGRESO DE DATOS DE ALOJAMIENTO ----\n");
-        System.out.print("-Pais: ");
-        String pais = sc.nextLine();
-        
-        System.out.print("-Ciudad: ");
-        String ciudad = sc.nextLine();
-        
-        System.out.print("-Nombre del Alojamiento: ");
-        String nombreA = sc.nextLine();
-        
-        System.out.print("-Costo: ");
-        double costo = Double.parseDouble(sc.nextLine());
-        //sc.nextLine();
-        
-        System.out.print("-Numero habitaciones: ");
-        int habitaciones = sc.nextInt();
-        sc.nextLine();
-        
-        String direccion = ciudad+"-"+pais;
-        double tarifaAirbnb;
-        
-        do{
-            tarifaAirbnb = (Math.random()*20)+10;
-        }while(tarifaAirbnb>(costo/2));
-        
-        
-        Alojamiento a = new Alojamiento(Alojamiento.alojamientoIDActual+1,this,costo,habitaciones,direccion,tarifaAirbnb, nombreA);
-        ConexionDB.registrarAlojamiento(a);
-        a.addUnServicio(a.getAlojaminetoID());
-        a.addUnReglamento(a.getAlojaminetoID());
-        
-        
-        System.out.println("\n-----------   SE HA PUBLICADO EXITOSAMENTE SU ALOJAMIENTO ---------\n");
-        }
-        catch(Exception e){
-            System.out.println("********Ingreso de datos erroneo********");
-        }
-    }
-    
-    public void enviarMensaje(Cliente cliente){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("Escriba el mensaje que le quiera mandar a "+cliente.getNombre());
-        String mensaje = sc.nextLine();
-        if(!mensaje.isEmpty() && !mensaje.isBlank()){
-            ConexionDB.registrarMensaje(mensaje, this.usuarioID, cliente.usuarioID);
-            System.out.println("***Mensaje Enviado***\n");
-        }
-    }
-    
 }

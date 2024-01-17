@@ -4,13 +4,17 @@
  */
 package MetodosPago;
 
+import SistemaInterno.Reserva;
+import static SistemaInterno.Sistema.getOpcion;
+import Util.ConexionDB;
 import java.util.Date;
+import java.util.Scanner;
 
 /**
  *
  * @author vv
  */
-public class Tarjeta extends Pago{
+public class Tarjeta extends Pago {
     
     protected int numeroTarjeta;
     protected String caducidad;
@@ -49,5 +53,4 @@ public class Tarjeta extends Pago{
         return codigocvv;
     }
 
-  
 }

@@ -5,16 +5,18 @@
 package SistemaInterno;
 
 import Usuarios.Anfitrion;
+import Usuarios.Ianfitrion;
 import Util.ConexionDB;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Arrays;
 
+
 /**
  *
  * @author vv
  */
-public class Alojamiento {
+public class Alojamiento implements AddServicio, AddReglamento{
     
     private int alojaminetoID;
     private Anfitrion anfitrion;
@@ -88,90 +90,5 @@ public class Alojamiento {
     public String toString() {
         return  "alojaminetoID=" + alojaminetoID + ", anfitrion=" + anfitrion.getNombre() + ", precio=" + precio + ", habitaciones=" + habitaciones + ", ubicacion=" + ubicacion + ", calificacion=" + calificacion + ", calificaciones=" + calificaciones;
     }
-    
-    public void enlistarAlojamiento(){
-        System.out.printf("   %s\n    Precio: %s x noche\n    Calificacion: %s estrellas\n    Habitaciones: %d\n    Ubicacion: %s\n",this.nombre,this.precio,this.calificacion,this.habitaciones,this.ubicacion);
-    }
-    
-    public void detallarAlojamientoSeleccionado(){
-        System.out.printf("\n %s\n- Anfitrion: %s\n- Costo: %s x noche\n- Habitaciones: %d\n- Calificacion: %s estrellas\n- Ubicacion: %s\n",this.nombre.toUpperCase(),this.anfitrion.getNombre(),this.precio,this.habitaciones,this.calificacion,this.ubicacion);
-        
-        if (!ConexionDB.servicios(this.alojaminetoID).isEmpty()){
-            System.out.println("\n*SERVICIOS DEL ALOJAMINETO*");
-            for(String s:ConexionDB.servicios(this.alojaminetoID)){
-                System.out.println("-"+s);
-            }
-        }
-        if(!ConexionDB.reglamento(this.alojaminetoID).isEmpty()){
-            System.out.println("\n*REGLAS DEL ALOJAMINETO*");
-            for(String s:ConexionDB.reglamento(this.alojaminetoID)){
-                System.out.println("-"+s);
-            }
-        }
-    }
-    
-    
-    
-//---------------------------------------------------------------------------------------------------
-    //Metodo que cambia la calificacion del alojamineto
-    public void cambiarCalificaion(double nuevaCalificacion){  
-        this.calificaciones.add(nuevaCalificacion);
-        double calificacion=0;
-        
-        for(Double d:this.calificaciones){
-            calificacion+=d;
-        }     
-        double calificaionFinal = (calificacion)/(calificaciones.size());
-        this.calificacion=calificaionFinal;
-    }
-    
-  
-//-------------------------------------------------------------------------------------------
-    //Metodos de la opcion publicar alojamientos (ANFITRION)
-    public void addUnServicio(int aloj_id){
-        Scanner sc = new Scanner(System.in);
-        int opcion=0;
-        try{
-            System.out.println("Servicio que posee su alojamiento: ");
-            String servicio =sc.nextLine();
-            if (!servicio.isEmpty() && !servicio.isBlank()){
-                ConexionDB.registrarServicio(aloj_id,servicio);
-            }
-            System.out.println("Desea agregar otro servicio?\n1.si\n2.no");
-            opcion =Sistema.getOpcion(2);
-        }
-        catch(Exception e){
-            System.out.println("");
-        }
-        finally{
-            if(opcion==1){
-                this.addUnServicio(aloj_id);
-            }
-        }
-    }
-    
-    public void addUnReglamento(int aloj_id){
-        Scanner sc = new Scanner(System.in);
-        int opcion=0;
 
-        try{
-            System.out.println("Regla a agregar: ");
-            String regla = sc.nextLine();
-            if (!regla.isEmpty() && !regla.isBlank()){
-                ConexionDB.registrarServicio(aloj_id,regla);
-            }
-            System.out.println("Desea agregar otra regla?\n1.si\n2.no");
-            opcion =Sistema.getOpcion(2);
-        }
-        catch(Exception e){
-            System.out.println(e.getMessage());
-        }
-        finally{
-            if(opcion==1){
-                this.addUnReglamento(aloj_id);
-            }
-        }
-    }
-
-    
 }
